@@ -6,8 +6,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useCart, useUI, useWishlist } from "@/providers/StoreProvider";
 import { Logo } from "./Logo";
 import { SearchBar } from "./SearchBar";
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { cn, formatNumber } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
 
 function IconButton({
   href,
@@ -59,29 +58,26 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#E2E8EA] bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-4 sm:px-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-3 py-2.5 sm:gap-4 sm:px-4 lg:px-8">
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
           aria-label={t("header.menu")}
-          className="rounded-xl border border-[#E2E8EA] p-2 text-[#16339B] transition hover:bg-[#E8F0FE] lg:hidden"
+          className="shrink-0 rounded-xl border border-[#E2E8EA] p-2 text-[#16339B] transition hover:bg-[#E8F0FE] lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <Logo compact />
+        <Logo compact iconOnlyOnMobile />
 
         <SearchBar className="mx-auto hidden w-full max-w-2xl md:block" />
 
-        <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
-          <span className="mr-1 hidden md:block">
-            <LanguageSwitcher tone="dark" />
-          </span>
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           <button
             type="button"
             onClick={toggleLanguage}
             aria-label={t("common.language")}
-            className="rounded-xl border border-[#E2E8EA] px-2.5 py-1.5 text-[11px] font-bold text-[#1D4ED8] transition hover:bg-[#E8F0FE] md:hidden"
+            className="rounded-xl border border-[#E2E8EA] px-2 py-1.5 text-[11px] font-bold text-[#1D4ED8] transition hover:bg-[#E8F0FE] md:hidden"
           >
             {language === "bn" ? "EN" : "বাং"}
           </button>
@@ -101,7 +97,7 @@ export function Header() {
         </div>
       </div>
 
-      <div className="border-t border-[#E2E8EA]/70 px-3 pb-2.5 pt-2 md:hidden">
+      <div className="border-t border-[#E2E8EA]/70 px-3 py-2 sm:px-4 md:hidden">
         <SearchBar />
       </div>
     </header>

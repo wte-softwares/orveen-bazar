@@ -71,13 +71,13 @@ The goal of ORVEEN BAZZAR is to provide reliable, affordable, and easily accessi
 
 ```text
 orveen-bazzar/
-├── public/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── app/
-│   ├── assets/
-│   └── ...
+├── app/           # Next.js App Router routes, layouts, and API handlers
+├── components/    # Reusable UI components
+├── data/          # Static content and product data
+├── db/            # Drizzle ORM schema and client
+├── lib/           # Shared types and utilities
+├── locales/       # i18n translation dictionaries
+├── providers/     # React context providers
 ├── package.json
 ├── README.md
 └── ...

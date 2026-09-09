@@ -29,17 +29,29 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
-export function Logo({ compact = false, light = false }: { compact?: boolean; light?: boolean }) {
+export function Logo({
+  compact = false,
+  light = false,
+  /** Show only the icon until the `sm` breakpoint (used in the mobile header to save space). */
+  iconOnlyOnMobile = false,
+}: {
+  compact?: boolean;
+  light?: boolean;
+  iconOnlyOnMobile?: boolean;
+}) {
   return (
     <Link
       href="/"
-      className="flex shrink-0 items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]"
+      className={cn(
+        "flex shrink-0 items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]",
+        iconOnlyOnMobile && "gap-0 sm:gap-2",
+      )}
       aria-label="ORVEEN BAZZAR home"
     >
       <LogoMark
         className={cn(compact ? "h-8 w-8" : "h-9 w-9 sm:h-10 sm:w-10", light ? "text-white" : "text-[#1D4ED8]")}
       />
-      <span className="flex flex-col leading-none">
+      <span className={cn("flex-col leading-none", iconOnlyOnMobile ? "hidden sm:flex" : "flex")}>
         <span
           className={cn(
             "font-black tracking-tight",

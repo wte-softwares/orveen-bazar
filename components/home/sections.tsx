@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useToast } from "@/providers/StoreProvider";
+import { marketingImages } from "@/lib/images";
 import { categories } from "@/data/categories";
 import { products } from "@/data/products";
 import { trustItems, whyItems } from "@/data/content";
@@ -87,14 +88,17 @@ export function HeroSection() {
         </div>
 
         <div className="relative">
-          <div className="overflow-hidden rounded-3xl border border-white/15 shadow-2xl shadow-black/25">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/15 shadow-2xl shadow-black/25">
             <Image
-              src="/images/hero-staples.jpg"
+              src={marketingImages.heroStaples.src}
               alt="Everyday grocery staples — oil, rice, lentils and spices"
-              width={1200}
-              height={900}
+              fill
               priority
-              className="h-full w-full object-cover"
+              fetchPriority="high"
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              placeholder="blur"
+              blurDataURL={marketingImages.heroStaples.blurDataURL}
+              className="object-cover"
             />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2.5">
@@ -320,14 +324,16 @@ export function AboutPreview() {
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="overflow-hidden rounded-3xl border border-[#E2E8EA]">
+        <div className="relative aspect-[3/2] overflow-hidden rounded-3xl border border-[#E2E8EA]">
           <Image
-            src="/images/warehouse.jpg"
+            src={marketingImages.warehouse.src}
             alt="Organised warehouse with carton boxes"
-            width={1200}
-            height={800}
+            fill
             loading="lazy"
-            className="h-full w-full object-cover"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            placeholder="blur"
+            blurDataURL={marketingImages.warehouse.blurDataURL}
+            className="object-cover"
           />
         </div>
       </div>

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
+import { marketingImages } from "@/lib/images";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { StoreProvider } from "@/providers/StoreProvider";
 import { TopBar } from "@/components/layout/TopBar";
@@ -54,11 +55,20 @@ export const metadata: Metadata = {
     url: "https://www.orveenbazzar.com",
     locale: "bn_BD",
     alternateLocale: ["en_US"],
+    images: [
+      {
+        url: marketingImages.heroStaples.src,
+        width: marketingImages.heroStaples.width,
+        height: marketingImages.heroStaples.height,
+        alt: "ORVEEN BAZZAR — everyday grocery staples",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "ORVEEN BAZZAR | FMCG & Daily Essentials Online Shop",
     description: "Reliable Quality • Trusted Service • Prosperous Future",
+    images: [marketingImages.heroStaples.src],
   },
   robots: { index: true, follow: true },
 };

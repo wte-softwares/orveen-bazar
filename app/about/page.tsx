@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { marketingImages } from "@/lib/images";
 import {
   Building2,
   Compass,
@@ -52,14 +53,16 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-        <div className="overflow-hidden rounded-3xl border border-[#E2E8EA]">
+        <div className="relative aspect-[3/2] overflow-hidden rounded-3xl border border-[#E2E8EA]">
           <Image
-            src="/images/dealer-shop.jpg"
+            src={marketingImages.dealerShop.src}
             alt="Neat neighbourhood grocery shop shelves"
-            width={1200}
-            height={800}
-            loading="lazy"
-            className="h-full w-full object-cover"
+            fill
+            priority
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            placeholder="blur"
+            blurDataURL={marketingImages.dealerShop.blurDataURL}
+            className="object-cover"
           />
         </div>
       </section>

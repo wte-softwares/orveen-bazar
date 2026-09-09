@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Building2, CheckCircle2, Handshake, Headphones, Scale, Tag, Truck } from "lucide-react";
 import { useLanguage, usePageTitle } from "@/providers/LanguageProvider";
 import { useToast } from "@/providers/StoreProvider";
+import { marketingImages } from "@/lib/images";
 import { corporateAudiences, corporateBenefits } from "@/data/content";
 import { Breadcrumb, Badge, Field, TextArea, TextInput } from "@/components/ui/core";
 import type { LucideIcon } from "lucide-react";
@@ -104,14 +105,16 @@ export default function CorporatePage() {
             ))}
           </ul>
         </div>
-        <div className="overflow-hidden rounded-3xl border border-[#E2E8EA]">
+        <div className="relative aspect-[3/2] overflow-hidden rounded-3xl border border-[#E2E8EA]">
           <Image
-            src="/images/warehouse.jpg"
+            src={marketingImages.warehouse.src}
             alt="Warehouse ready for institutional supply"
-            width={1200}
-            height={800}
+            fill
             loading="lazy"
-            className="h-full w-full object-cover"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            placeholder="blur"
+            blurDataURL={marketingImages.warehouse.blurDataURL}
+            className="object-cover"
           />
         </div>
       </section>
