@@ -1,0 +1,7 @@
+-- Phase 2 will populate this with the 3 named organizations, sample
+-- categories/items/banners within the brief's stated allowances, and the
+-- seeded test identities (2 customers, 1 platform admin, staff-org-A,
+-- staff-org-B) used by the Playwright and RLS policy test suites.
+--
+-- Runs automatically on `supabase db reset` (see supabase/config.toml,
+-- [db.seed]). Intentionally empty until the schema migrations exist.

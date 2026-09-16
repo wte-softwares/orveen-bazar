@@ -1,0 +1,3 @@
+Phase 2 adds Playwright specs here for the brief's acceptance-check flows:
+register/login/recover, browse -> filter -> details -> wishlist, and admin
+create/edit/publish/archive. See docs/SETUP.md for how to run them.

@@ -1,0 +1,3 @@
+Phase 2 adds the real numbered migration files here (schema, triggers,
+indexes, RLS policies — see docs/DATA_MODEL.md and docs/RLS_POLICIES.md).
+This placeholder just keeps the empty directory tracked in git until then.

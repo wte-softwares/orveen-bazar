@@ -1,0 +1,6 @@
+Phase 2 adds direct DB/RLS allow-and-deny tests here, using the seeded test
+identities (guest, 2 customers, 1 platform admin, staff-org-A, staff-org-B).
+These test the database policies directly via @supabase/supabase-js against
+the local stack — not just "is the button hidden" — per the brief's explicit
+requirement. Must include forged-organization-ID attempts on every admin
+write path and a membership-removal-revokes-access check.
