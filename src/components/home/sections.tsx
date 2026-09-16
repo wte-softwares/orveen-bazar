@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Headphones, ShieldCheck, Tag, Truck } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useAdminStore } from "@/providers/AdminStoreProvider";
 import { organizations, orgBySlug } from "@/data/organizations";
-import { activeBanners } from "@/data/banners";
 import { BrandCard, CatalogCard, CategoryCard } from "@/components/catalog/cards";
 import { Banner } from "@/components/brand/bits";
 import { Badge, SectionHeading } from "@/components/ui/core";
@@ -61,12 +59,11 @@ export function HeroSection() {
         </div>
         <div className="relative">
           <div className="overflow-hidden rounded-3xl border border-white/15 shadow-2xl shadow-black/25">
-            <Image
-              src="/images/hero-staples.jpg"
+            {/* Local SVG asset avoids a remote/optimizer dependency for the hero visual. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/hero-staples.svg"
               alt="Everyday grocery staples — oil, rice, lentils and spices"
-              width={1200}
-              height={900}
-              priority
               className="h-full w-full object-cover"
             />
           </div>
@@ -189,7 +186,8 @@ export function FeaturedItemsSection() {
 
 export function BannerCarousel() {
   const { t } = useLanguage();
-  const banners = activeBanners();
+  const { state } = useAdminStore();
+  const banners = state.banners.filter((banner) => banner.active).sort((a, b) => a.sortOrder - b.sortOrder);
   const [index, setIndex] = useState(0);
   if (banners.length === 0) return null;
   const safe = Math.min(index, banners.length - 1);

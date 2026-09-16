@@ -219,6 +219,7 @@ const en = {
     required: "This field is required",
     invalidMobile: "Enter a valid mobile number (e.g. 01712345678)",
     invalidEmail: "Enter a valid email address",
+    emailExists: "An account already exists with this email",
     minLength: "Must be at least {count} characters",
     passwordMismatch: "Passwords do not match",
     selectOne: "Please select at least one option",

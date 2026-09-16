@@ -62,7 +62,9 @@ function LoginInner() {
     } else {
       push(t("auth.loginSuccess"));
     }
-    router.push(params.get("next") ?? "/account");
+    const next = params.get("next");
+    const roleHome = result.user?.role === "customer" ? "/account" : "/admin";
+    router.push(next ?? roleHome);
   };
 
   return (

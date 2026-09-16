@@ -14,7 +14,6 @@ export default function GlobalError({
 }) {
   const { t } = useLanguage();
   useEffect(() => {
-    // eslint-disable-next-line no-console
     console.error(error);
   }, [error]);
 

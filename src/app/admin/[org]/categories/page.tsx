@@ -8,6 +8,8 @@ import { useAdminStore } from "@/providers/AdminStoreProvider";
 import { useToast } from "@/providers/StoreProvider";
 import { AdminShell, DataTable, StatusBadge } from "@/components/admin/AdminKit";
 import { Field, Modal, TextInput } from "@/components/ui/core";
+import { ConfirmDialog } from "@/components/ui/feedback";
+import { cn } from "@/lib/utils";
 import type { CatalogCategory } from "@/data/categories";
 import type { OrgSlug } from "@/data/organizations";
 
@@ -15,11 +17,12 @@ export default function AdminCategoriesPage() {
   const { t, pick } = useLanguage();
   const params = useParams<{ org: string }>();
   const org = params.org as OrgSlug;
-  const { state, saveCategory } = useAdminStore();
+  const { state, saveCategory, deleteCategory } = useAdminStore();
   const { push } = useToast();
   usePageTitle(t("admin.categories"), "Categories");
 
   const [editing, setEditing] = useState<CatalogCategory | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CatalogCategory | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const rows = state.categories
@@ -117,9 +120,13 @@ export default function AdminCategoriesPage() {
                   <button
                     type="button"
                     disabled={inUse}
-                    title={inUse ? t("admin.deleteDisabled") : undefined}
-                    aria-label={t("admin.deleteDisabled")}
-                    className="rounded-lg border border-[#E2E8EA] p-2 text-[#66777D]/40 disabled:cursor-not-allowed"
+                    title={inUse ? t("admin.deleteDisabled") : t("admin.deleteConfirmTitle")}
+                    aria-label={inUse ? t("admin.deleteDisabled") : t("admin.deleteConfirmTitle")}
+                    onClick={() => !inUse && setDeleteTarget(cat)}
+                    className={cn(
+                      "rounded-lg border border-[#E2E8EA] p-2 transition",
+                      inUse ? "cursor-not-allowed text-[#66777D]/40" : "text-rose-600 hover:bg-rose-50"
+                    )}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -173,6 +180,21 @@ export default function AdminCategoriesPage() {
           </form>
         ) : null}
       </Modal>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title={t("admin.deleteConfirmTitle")}
+        body={deleteTarget ? `${pick(deleteTarget.name)} (${deleteTarget.slug})` : undefined}
+        confirmLabel={t("admin.deleteConfirmTitle")}
+        cancelLabel={t("admin.cancel")}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) {
+            deleteCategory(org, deleteTarget.slug);
+            push(t("admin.categoryDeleted"), "info");
+            setDeleteTarget(null);
+          }
+        }}
+      />
     </AdminShell>
   );
 }

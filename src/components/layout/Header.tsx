@@ -25,6 +25,7 @@ export function Header() {
   const { user } = useAuth();
   const { setMenuOpen } = useUI();
   const pathname = usePathname();
+  const accountHref = user?.role === "customer" ? "/account" : "/admin";
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#E2E8EA] bg-white/95 backdrop-blur">
@@ -62,7 +63,7 @@ export function Header() {
             <span className="hidden text-[11px] font-medium lg:block">{t("wishlist.title")}</span>
           </Link>
           <Link
-            href={user ? "/account" : "/login"}
+            href={user ? accountHref : "/login"}
             aria-label={user ? t("account.title") : t("auth.loginTitle")}
             className="flex flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[#0346A5] transition hover:bg-[#EAF3FE]"
           >

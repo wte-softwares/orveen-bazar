@@ -54,7 +54,6 @@ export const organizations: Organization[] = [
     accent: "#53B51B",
     tint: "#EDF9E8",
     logo: "asset",
-    logoSrc: "/brand/orveen-logo.png",
   },
   {
     slug: "reliable",

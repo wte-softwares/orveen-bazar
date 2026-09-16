@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useEffect,
   useRef,
@@ -300,12 +301,12 @@ export function Breadcrumb({ items }: { items: Crumb[] }) {
           <li key={`${item.label}-${i}`} className="flex min-w-0 items-center gap-1">
             {i > 0 ? <ChevronRight className="h-3 w-3 shrink-0 text-[#66777D]/60" /> : null}
             {item.href ? (
-              <a
+              <Link
                 href={item.href}
                 className="truncate transition hover:text-[#075ED1] hover:underline"
               >
                 {item.label}
-              </a>
+              </Link>
             ) : (
               <span aria-current="page" className="truncate font-medium text-[#17242A]">
                 {item.label}

@@ -44,7 +44,7 @@ function ItemsInner() {
             i.title.bn.toLowerCase().includes(search.toLowerCase()) ||
             i.title.en.toLowerCase().includes(search.toLowerCase())),
       ),
-    [state.items, org, type, status, search],
+    [state.items, org, type, status, search, catFilter],
   );
 
   const addItem = () => {

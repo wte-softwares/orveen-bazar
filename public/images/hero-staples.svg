@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Everyday grocery staples</title>
+  <desc id="desc">Illustrated rice, lentils, oil and spice containers</desc>
+  <rect width="1200" height="900" fill="#eaf3fe"/>
+  <circle cx="950" cy="170" r="230" fill="#d8edbd"/>
+  <circle cx="170" cy="760" r="270" fill="#c8e3f7"/>
+  <path d="M0 690c220-125 410-130 600-15s390 115 600-10v235H0Z" fill="#b8dca0"/>
+  <g stroke="#0346a5" stroke-width="12" stroke-linejoin="round">
+    <path d="M185 280h250l-22 430H207Z" fill="#fff"/>
+    <path d="M205 280c8-96 62-145 105-145s97 49 105 145" fill="#ffc800"/>
+    <path d="M238 420h144M244 474h132M250 528h120" fill="none" stroke="#2d9819"/>
+    <path d="M515 315h205l-25 395H540Z" fill="#f7d9a6"/>
+    <path d="M535 315c8-76 46-112 82-112s74 36 82 112" fill="#2d9819"/>
+    <circle cx="615" cy="475" r="48" fill="#ffc800"/>
+    <path d="M885 315h145l38 395H845Z" fill="#fff"/>
+    <path d="M900 315h115l-16-92H916Z" fill="#075ed1"/>
+    <path d="M876 470h165v72H876Z" fill="#53b51b"/>
+    <path d="M875 600h170" fill="none"/>
+  </g>
+  <g fill="#0346a5" font-family="Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="310" y="625" font-size="30">RICE</text>
+    <text x="615" y="650" font-size="27">LENTILS</text>
+    <text x="958" y="655" font-size="27">OIL</text>
+  </g>
+</svg>

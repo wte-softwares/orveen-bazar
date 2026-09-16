@@ -171,7 +171,7 @@ export default function DealerPage() {
               <Select id="d-district" value={form.district} onChange={(e) => set("district", e.target.value)}>
                 <option value="">—</option>
                 {districts.map((d) => (
-                  <option key={d.en} value={pick(d)}>
+                  <option key={d.en} value={d.en}>
                     {pick(d)}
                   </option>
                 ))}
@@ -184,7 +184,7 @@ export default function DealerPage() {
               <Select id="d-type" value={form.businessType} onChange={(e) => set("businessType", e.target.value)}>
                 <option value="">—</option>
                 {businessTypes.map((b) => (
-                  <option key={b.en} value={pick(b)}>
+                  <option key={b.en} value={b.en}>
                     {pick(b)}
                   </option>
                 ))}
@@ -194,7 +194,7 @@ export default function DealerPage() {
               <Select id="d-invest" value={form.investment} onChange={(e) => set("investment", e.target.value)}>
                 <option value="">—</option>
                 {investmentRanges.map((r) => (
-                  <option key={r.en} value={pick(r)}>
+                  <option key={r.en} value={r.en}>
                     {pick(r)}
                   </option>
                 ))}

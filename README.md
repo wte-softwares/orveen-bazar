@@ -66,7 +66,7 @@ real authentication and provide **no** security.
 ## LocalStorage keys
 
 - `orveen-demo-session` — demo logged-in user
-- `orveen-demo-wishlist` — saved item ids
+- `orveen-demo-wishlist:<user-id>` — saved item ids for each account
 - `orveen-demo-wishlist-pending` — guest intent applied after demo login
 - `orveen-demo-users` — registered demo users
 - `orveen-demo-admin-data` — CMS edits (items/categories/banners/settings/users)

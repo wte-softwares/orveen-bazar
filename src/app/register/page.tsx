@@ -57,7 +57,7 @@ export default function RegisterPage() {
     const result = await register(form.name, form.email, form.password);
     setLoading(false);
     if (!result.ok) {
-      setErrors({ email: t("validation.invalidEmail") });
+      setErrors({ email: result.error === "exists" ? t("validation.emailExists") : t("validation.invalidEmail") });
       return;
     }
     /* Demo email-confirmation screen — no email is actually sent. */

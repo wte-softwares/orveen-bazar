@@ -40,7 +40,10 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 rounded-2xl border border-[#16A34A]/30 bg-[#16A34A]/5 p-5 text-center">
             <CheckCircle2 className="mx-auto h-9 w-9 text-[#16A34A]" />
             <p className="mt-2 text-[13.5px] font-semibold text-[#14532D]">{t("auth.forgotSuccess")}</p>
-            <Link href="/reset-password" className="mt-3 inline-block text-[13px] font-bold text-[#075ED1] hover:underline">
+            <Link
+              href={`/reset-password?email=${encodeURIComponent(email.trim().toLowerCase())}`}
+              className="mt-3 inline-block text-[13px] font-bold text-[#075ED1] hover:underline"
+            >
               {t("auth.resetTitle")}
             </Link>
           </div>

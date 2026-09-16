@@ -15,7 +15,7 @@ import { BrandLogo } from "@/components/brand/bits";
 import { catalogConfig } from "@/lib/config";
 import { LS_KEYS, cn, readLS, removeLS, writeLS } from "@/lib/utils";
 
-export const PENDING_WISHLIST_KEY = "orveen-wishlist-pending";
+export const PENDING_WISHLIST_KEY = LS_KEYS.pendingWishlist;
 
 /* ------------------------------- Item visual ------------------------------- */
 

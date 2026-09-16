@@ -40,6 +40,23 @@ export default function ItemEditorPage() {
   const [saving, setSaving] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
+  useEffect(() => {
+    if (!existing) return;
+    const load = window.setTimeout(() => {
+      setForm((previous) =>
+        previous?.id === existing.id
+          ? previous
+          : {
+              ...existing,
+              title: { ...existing.title },
+              description: { ...existing.description },
+              variants: existing.variants.map((variant) => ({ ...variant })),
+            },
+      );
+    }, 0);
+    return () => window.clearTimeout(load);
+  }, [existing]);
+
   const dirty = useMemo(
     () => Boolean(form && existing && JSON.stringify(form) !== JSON.stringify(existing)),
     [form, existing],
@@ -268,9 +285,25 @@ export default function ItemEditorPage() {
             <Save className="h-4 w-4" />
             {saving ? t("auth.working") : t("account.save")}
           </button>
-          <Link href={`/brands/${org}/${form.slug}`} className="text-[13px] font-semibold text-[#66777D] hover:underline">
-            {t("admin.openSite")}
-          </Link>
+          {form.status === "published" ? (
+            <Link
+              href={`/brands/${org}/${form.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] font-semibold text-[#66777D] hover:underline"
+            >
+              {t("admin.openSite")}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              title={t("admin.draftNotPublished")}
+              className="text-[13px] font-semibold text-[#66777D]/70 hover:text-[#075ED1] hover:underline"
+            >
+              {t("admin.openSite")} ({t(`admin.${form.status}`)})
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setPreviewOpen(true)}

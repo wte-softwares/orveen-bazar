@@ -16,7 +16,7 @@ import { banners as seedBanners, type Banner } from "@/data/banners";
 import { mockUsers, type AdminUser } from "@/data/users";
 import { organizations, type OrgSlug } from "@/data/organizations";
 import type { LocalizedText } from "@/lib/types";
-import { readLS, writeLS } from "@/lib/utils";
+import { readLS, writeLS, LS_KEYS } from "@/lib/utils";
 
 export interface OrgSettings {
   brandName: string;
@@ -41,6 +41,7 @@ interface AdminStoreValue {
   saveItem: (item: CatalogItem) => void;
   setItemStatus: (id: string, status: CatalogItem["status"]) => void;
   saveCategory: (category: CatalogCategory) => void;
+  deleteCategory: (orgSlug: OrgSlug, categorySlug: string) => void;
   saveBanner: (banner: Banner) => void;
   saveSettings: (org: OrgSlug, settings: OrgSettings) => void;
   setUserStatus: (id: string, status: AdminUser["status"]) => void;
@@ -90,10 +91,33 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = readLS<AdminState | null>(LS_KEY, null);
-    if (stored && stored.items && stored.categories && stored.banners && stored.settings) {
-      setState({ ...seedState(), ...stored, users: stored.users?.length ? stored.users : mockUsers });
+    const registered = readLS<{ name: string; email: string }[]>(LS_KEYS.demoUsers, []);
+    const regUsers: AdminUser[] = registered.map((r) => ({
+      id: `reg-${r.email}`,
+      name: r.name,
+      email: r.email,
+      role: "customer" as const,
+      orgs: [],
+      status: "active" as const,
+    }));
+
+    const baseUsers = stored?.users?.length ? stored.users : mockUsers;
+    const mergedUsers = [...baseUsers];
+    for (const ru of regUsers) {
+      if (!mergedUsers.some((u) => u.email === ru.email)) {
+        mergedUsers.push(ru);
+      }
     }
-    hydrated.current = true;
+
+    const apply = window.setTimeout(() => {
+      if (stored && stored.items && stored.categories && stored.banners && stored.settings) {
+        setState({ ...seedState(), ...stored, users: mergedUsers });
+      } else {
+        setState((prev) => ({ ...prev, users: mergedUsers }));
+      }
+      hydrated.current = true;
+    }, 0);
+    return () => window.clearTimeout(apply);
   }, []);
 
   useEffect(() => {
@@ -133,6 +157,13 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
           : [...prev.categories, category],
       };
     });
+  }, []);
+
+  const deleteCategory = useCallback((orgSlug: OrgSlug, categorySlug: string) => {
+    setState((prev) => ({
+      ...prev,
+      categories: prev.categories.filter((c) => !(c.orgSlug === orgSlug && c.slug === categorySlug)),
+    }));
   }, []);
 
   const saveBanner = useCallback((banner: Banner) => {
@@ -200,6 +231,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
       saveItem,
       setItemStatus,
       saveCategory,
+      deleteCategory,
       saveBanner,
       saveSettings,
       setUserStatus,
@@ -217,6 +249,7 @@ export function AdminStoreProvider({ children }: { children: ReactNode }) {
       saveItem,
       setItemStatus,
       saveCategory,
+      deleteCategory,
       saveBanner,
       saveSettings,
       setUserStatus,

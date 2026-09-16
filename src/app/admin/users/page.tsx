@@ -5,6 +5,7 @@ import { useAdminStore } from "@/providers/AdminStoreProvider";
 import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/StoreProvider";
 import { AdminShell, DataTable, StatusBadge } from "@/components/admin/AdminKit";
+import { ErrorState } from "@/components/ui/feedback";
 import { organizations, type OrgSlug } from "@/data/organizations";
 
 export default function AdminUsersPage() {
@@ -18,7 +19,12 @@ export default function AdminUsersPage() {
 
   return (
     <AdminShell title={t("admin.usersTitle")}>
-      {!isAdmin ? null : (
+      {!isAdmin ? (
+        <ErrorState
+          title={t("admin.accessDenied")}
+          description={t("admin.accessDeniedDesc")}
+        />
+      ) : (
         <DataTable
           head={[
             t("admin.userName"),

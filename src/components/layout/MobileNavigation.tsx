@@ -31,6 +31,7 @@ export function MobileNavigation() {
   const { ids } = useWishlist();
   const { user } = useAuth();
   const pathname = usePathname();
+  const accountHref = user?.role === "customer" ? "/account" : "/admin";
 
   useEffect(() => {
     setMenuOpen(false);
@@ -100,7 +101,7 @@ export function MobileNavigation() {
                 ))}
                 <li>
                   <Link
-                    href={user ? "/account" : "/login"}
+                    href={user ? accountHref : "/login"}
                     className={cn(
                       "block rounded-xl px-3.5 py-2.5 text-[14px] font-semibold transition",
                       pathname.startsWith("/account") || pathname === "/login"
@@ -159,7 +160,7 @@ export function MobileNavigation() {
             { href: "/catalog", label: t("nav2.catalog"), icon: LayoutGrid, badge: 0 },
             { action: "search", label: t("catalog.search"), icon: Search, badge: 0 },
             { href: "/account/wishlist", label: t("wishlist.title"), icon: Heart, badge: ids.length },
-            { href: user ? "/account" : "/login", label: user ? t("account.title") : t("auth.loginTitle"), icon: UserRound, badge: 0 },
+            { href: user ? accountHref : "/login", label: user ? t("account.title") : t("auth.loginTitle"), icon: UserRound, badge: 0 },
           ].map((item) => {
             const active = item.href ? pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)) : false;
             const cls = cn(

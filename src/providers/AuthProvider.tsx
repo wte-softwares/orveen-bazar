@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { readLS, writeLS, removeLS } from "@/lib/utils";
-import { demoAccounts, mockUsers, type UserRole } from "@/data/users";
+import { demoAccounts, mockUsers, type AdminUser, type UserRole } from "@/data/users";
 import type { OrgSlug } from "@/data/organizations";
 
 export interface SessionUser {
@@ -30,10 +30,11 @@ interface RegisteredUser {
 interface AuthContextValue {
   user: SessionUser | null;
   ready: boolean;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; user?: SessionUser }>;
   register: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   updateName: (name: string) => void;
+  resetPassword: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -45,19 +46,22 @@ const AuthContext = createContext<AuthContextValue | null>(null);
  */
 const SESSION_KEY = "orveen-demo-session";
 const USERS_KEY = "orveen-demo-users";
+const ADMIN_DATA_KEY = "orveen-demo-admin-data";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function sessionFor(email: string, registered: RegisteredUser[]): SessionUser | null {
   const demo = demoAccounts.find((d) => d.email === email);
   if (demo) {
-    const mock = mockUsers.find((u) => u.email === demo.email);
+    const storedAdminData = readLS<{ users?: AdminUser[] } | null>(ADMIN_DATA_KEY, null);
+    const mock = storedAdminData?.users?.find((u) => u.email === demo.email) ?? mockUsers.find((u) => u.email === demo.email);
+    if (!mock || mock.status !== "active") return null;
     return {
-      id: mock?.id ?? `demo-${demo.role}`,
-      name: mock?.name ?? email.split("@")[0],
+      id: mock.id,
+      name: mock.name,
       email: demo.email,
-      role: demo.role,
-      orgs: mock?.orgs ?? (demo.role === "admin" ? "all" : []),
+      role: mock.role,
+      orgs: mock.orgs,
     };
   }
   const reg = registered.find((r) => r.email === email);
@@ -73,7 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = readLS<SessionUser | null>(SESSION_KEY, null);
-    if (stored && stored.email && stored.role) setUser(stored);
+    if (stored && stored.email && stored.role) {
+      const registered = readLS<RegisteredUser[]>(USERS_KEY, []);
+      setUser(sessionFor(stored.email, registered));
+    }
     setReady(true);
   }, []);
 
@@ -83,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const demo = demoAccounts.find((d) => d.email === normalized);
     const registered = readLS<RegisteredUser[]>(USERS_KEY, []);
     const reg = registered.find((r) => r.email.toLowerCase() === normalized);
-    const expected = demo?.password ?? reg?.password;
+    const expected = reg?.password ?? demo?.password;
     if (!expected || expected !== password) {
       return { ok: false, error: "invalid" };
     }
@@ -91,14 +98,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!session) return { ok: false, error: "invalid" };
     setUser(session);
     writeLS(SESSION_KEY, session);
-    return { ok: true };
+    return { ok: true, user: session };
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
     await wait(700);
     const normalized = email.trim().toLowerCase();
     const registered = readLS<RegisteredUser[]>(USERS_KEY, []);
-    if (registered.some((r) => r.email.toLowerCase() === normalized)) {
+    if (
+      demoAccounts.some((account) => account.email === normalized) ||
+      registered.some((r) => r.email.toLowerCase() === normalized)
+    ) {
       return { ok: false, error: "exists" };
     }
     const next = [...registered, { name: name.trim(), email: normalized, password }];
@@ -113,6 +123,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(session);
     writeLS(SESSION_KEY, session);
     return { ok: true };
+  }, []);
+
+  const resetPassword = useCallback(async (email: string, newPassword: string) => {
+    await wait(600);
+    const normalized = email.trim().toLowerCase();
+    const demo = demoAccounts.find((d) => d.email === normalized);
+    const registered = readLS<RegisteredUser[]>(USERS_KEY, []);
+    const regIndex = registered.findIndex((r) => r.email.toLowerCase() === normalized);
+
+    if (regIndex !== -1) {
+      const next = [...registered];
+      next[regIndex] = { ...next[regIndex], password: newPassword };
+      writeLS(USERS_KEY, next);
+      return { ok: true };
+    } else if (demo) {
+      const mockUser = mockUsers.find((u) => u.email === normalized);
+      const name = mockUser?.name ?? demo.email.split("@")[0];
+      const next = [...registered, { name, email: demo.email, password: newPassword }];
+      writeLS(USERS_KEY, next);
+      return { ok: true };
+    }
+    return { ok: false, error: "notFound" };
   }, []);
 
   const logout = useCallback(() => {
@@ -130,8 +162,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, ready, login, register, logout, updateName }),
-    [user, ready, login, register, logout, updateName],
+    () => ({ user, ready, login, register, logout, updateName, resetPassword }),
+    [user, ready, login, register, logout, updateName, resetPassword],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

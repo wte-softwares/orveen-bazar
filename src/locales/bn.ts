@@ -221,6 +221,7 @@ const bn: Dictionary = {
     required: "এই ঘরটি পূরণ করা আবশ্যক",
     invalidMobile: "সঠিক মোবাইল নম্বর দিন (যেমন: ০১৭১২৩৪৫৬৭৮)",
     invalidEmail: "সঠিক ইমেইল ঠিকানা দিন",
+    emailExists: "এই ইমেইল দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট আছে",
     minLength: "কমপক্ষে {count} অক্ষর হতে হবে",
     passwordMismatch: "পাসওয়ার্ড দুটি মিলছে না",
     selectOne: "কমপক্ষে একটি অপশন নির্বাচন করুন",

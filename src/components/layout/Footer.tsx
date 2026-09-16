@@ -28,7 +28,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="mt-16 bg-[#0346A5] text-white">
+    <footer className="mt-16 bg-[#0346A5] text-white pb-20 lg:pb-0">
       {/* trust lead-in */}
       <div className="border-b border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-8 text-center lg:px-8">

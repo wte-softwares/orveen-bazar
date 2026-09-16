@@ -128,6 +128,7 @@ export function FilterChips({
   onChange: (next: CatalogFilters) => void;
 }) {
   const { t, pick } = useLanguage();
+  const { state } = useAdminStore();
   const chips: { label: string; clear: () => void }[] = [];
   if (filters.search)
     chips.push({ label: `“${filters.search}”`, clear: () => onChange({ ...filters, search: "", page: 1 }) });
@@ -136,11 +137,13 @@ export function FilterChips({
       label: orgBySlug(filters.brand)?.name ?? filters.brand,
       clear: () => onChange({ ...filters, brand: "", category: "", page: 1 }),
     });
-  if (filters.category)
+  if (filters.category) {
+    const matchedCategory = state.categories.find((c) => c.slug === filters.category) ?? categoryBySlug(filters.category);
     chips.push({
-      label: pick(categoryBySlug(filters.category)?.name ?? { bn: filters.category, en: filters.category }),
+      label: pick(matchedCategory?.name ?? { bn: filters.category, en: filters.category }),
       clear: () => onChange({ ...filters, category: "", page: 1 }),
     });
+  }
   if (filters.type)
     chips.push({
       label: filters.type === "product" ? t("catalog.product") : t("catalog.service"),
@@ -231,18 +234,27 @@ export function CatalogView() {
   const router = useRouter();
   const pathname = usePathname();
   const filters = useMemo(() => readFilters(params), [params]);
+  const [prevFilters, setPrevFilters] = useState(filters);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const load = () => {
+  if (prevFilters !== filters) {
+    setPrevFilters(filters);
     setLoading(true);
     setError(false);
+  }
+
+  useEffect(() => {
     const timer = window.setTimeout(() => setLoading(false), 300);
     return () => window.clearTimeout(timer);
-  };
+  }, [filters]);
 
-  useEffect(() => load(), [filters]);
+  const retry = () => {
+    setLoading(true);
+    setError(false);
+    window.setTimeout(() => setLoading(false), 300);
+  };
 
   const apply = (next: CatalogFilters) => {
     router.push(`${pathname}${toQuery(next)}`, { scroll: false });
@@ -315,7 +327,7 @@ export function CatalogView() {
           ) : null}
 
           {error ? (
-            <ErrorState title={t("errors.errorTitle")} description={t("errors.errorDesc")} onRetry={load} />
+            <ErrorState title={t("errors.errorTitle")} description={t("errors.errorDesc")} onRetry={retry} />
           ) : loading ? (
             <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (

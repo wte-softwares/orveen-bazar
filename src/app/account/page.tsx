@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Heart, LogOut, Save, UserRound } from "lucide-react";
 import { useLanguage, usePageTitle } from "@/providers/LanguageProvider";
 import { useAuth } from "@/providers/AuthProvider";
@@ -11,12 +12,19 @@ import { Breadcrumb, Badge, EmptyState, Field, TextInput } from "@/components/ui
 export default function AccountPage() {
   const { t } = useLanguage();
   const { user, updateName, logout } = useAuth();
+  const router = useRouter();
   const { ids } = useWishlist();
   const { push } = useToast();
   usePageTitle(t("account.title"), "My Account");
 
   const [name, setName] = useState(user?.name ?? "");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (user && user.role !== "customer") router.replace("/admin");
+  }, [router, user]);
+
+  if (user && user.role !== "customer") return null;
 
   if (!user) {
     return (

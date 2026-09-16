@@ -28,7 +28,7 @@ export const banners: Banner[] = [
     sortOrder: 1,
     active: true,
     style: "blue",
-    image: "/images/hero-staples.jpg",
+    image: "/images/hero-staples.svg",
   },
   {
     id: "ban-02",

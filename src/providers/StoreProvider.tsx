@@ -10,8 +10,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { LS_KEYS, readLS, writeLS } from "@/lib/utils";
+import { LS_KEYS, readLS, writeLS, removeLS } from "@/lib/utils";
 import type { ToastItem } from "@/lib/types";
+import { useAuth } from "@/providers/AuthProvider";
 
 /* ----------------------------- Wishlist ----------------------------- */
 
@@ -47,21 +48,40 @@ interface UIContextValue {
 const UIContext = createContext<UIContextValue | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const toastId = useRef(0);
   const hydrated = useRef(false);
+  const wishlistKey = user ? `${LS_KEYS.wishlist}:${user.id}` : null;
 
   useEffect(() => {
-    setWishlist(readLS<string[]>(LS_KEYS.wishlist, []));
+    if (!wishlistKey) {
+      const reset = window.setTimeout(() => setWishlist([]), 0);
+      hydrated.current = false;
+      return () => window.clearTimeout(reset);
+    }
+    const stored = readLS<string[]>(wishlistKey, []);
+    const pending = readLS<string | null>(LS_KEYS.pendingWishlist, null);
+    let initial = stored;
+    if (pending) {
+      removeLS(LS_KEYS.pendingWishlist);
+      if (!initial.includes(pending)) {
+        initial = [...initial, pending];
+      }
+      writeLS(wishlistKey, initial);
+    }
+    const apply = window.setTimeout(() => setWishlist(initial), 0);
     hydrated.current = true;
-  }, []);
+    return () => window.clearTimeout(apply);
+  }, [wishlistKey]);
 
   useEffect(() => {
-    if (hydrated.current) writeLS(LS_KEYS.wishlist, wishlist);
-  }, [wishlist]);
+    if (!wishlistKey || !hydrated.current) return;
+    writeLS(wishlistKey, wishlist);
+  }, [wishlist, wishlistKey]);
 
   const dismiss = useCallback((id: number) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
