@@ -40,3 +40,29 @@ export async function findActiveOrganizationBySlug(
   if (error) throw error;
   return data;
 }
+
+/**
+ * Active banners across every active organization, for the family homepage
+ * hero — "approved banners" per the brief's screen map for `/`. Scoped to
+ * one organization's brand page instead by passing `organizationId`.
+ */
+export async function listActiveBanners(
+  supabase: SupabaseClient<Database>,
+  organizationId?: string,
+) {
+  let query = supabase
+    .from("banners")
+    .select(
+      "id, image_path, alt_text, target_url, sort_order, organization:organizations!inner(slug, is_active)",
+    )
+    .eq("is_active", true)
+    .eq("organization.is_active", true);
+
+  if (organizationId) {
+    query = query.eq("organization_id", organizationId);
+  }
+
+  const { data, error } = await query.order("sort_order", { ascending: true });
+  if (error) throw error;
+  return data;
+}

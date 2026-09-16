@@ -1,14 +1,51 @@
-import { ScreenPlaceholder } from "@/components/layout/ScreenPlaceholder";
+import { createClient } from "@/lib/supabase/server";
+import { listActiveOrganizations, listActiveBanners } from "@/lib/queries/brands";
+import { listPublishedCatalogItems } from "@/lib/queries/catalog";
+import { HeroBanner } from "@/components/home/HeroBanner";
+import { BrandCards } from "@/components/home/BrandCards";
+import { ProductSection } from "@/components/home/ProductSection";
+import { Testimonials } from "@/components/home/Testimonials";
 
-// Family homepage — header, three brand cards, brand links, approved banners,
-// footer. Real content lands once lib/queries/brands.ts and the banner data
-// exist (Phase 2) and the client's designs are ready (later phase).
-export default function HomePage() {
+// Family homepage — header, three brand cards, brand links, approved
+// banners, and footer, per the brief's screen map for `/`. A Server
+// Component reading Supabase directly (see docs/ARCHITECTURE.md, "Read
+// path") via the same lib/queries modules the /api/v1 routes use, so this
+// page and the API can never quietly disagree about what's visible.
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  const [organizations, banners] = await Promise.all([
+    listActiveOrganizations(supabase),
+    listActiveBanners(supabase),
+  ]);
+
+  const productSections = await Promise.all(
+    organizations.map(async (org) => {
+      const { items } = await listPublishedCatalogItems(supabase, {
+        organizationSlug: org.slug,
+        from: 0,
+        to: 5,
+      });
+      return { org, items };
+    }),
+  );
+
   return (
-    <ScreenPlaceholder
-      title="Family homepage"
-      route="/"
-      description="Brand cards for ORVEEN BAZAR, ECO FAST BD, and RELIABLE MULTI PRODUCTS plus approved banners."
-    />
+    <div className="pb-10">
+      <HeroBanner banners={banners} />
+      <BrandCards organizations={organizations} />
+
+      {productSections.map(({ org, items }) => (
+        <ProductSection
+          key={org.slug}
+          orgSlug={org.slug}
+          orgName={org.name}
+          tagline={org.description ?? ""}
+          items={items}
+        />
+      ))}
+
+      <Testimonials />
+    </div>
   );
 }

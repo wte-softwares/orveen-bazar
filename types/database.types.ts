@@ -81,11 +81,12 @@ export type Database = {
       catalog_items: {
         Row: {
           category_id: string | null
+          compare_at_price: number | null
           created_at: string
           description: string | null
           id: string
-          image_path: string | null
           organization_id: string
+          price: number
           slug: string
           status: string
           title: string
@@ -94,11 +95,12 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          compare_at_price?: number | null
           created_at?: string
           description?: string | null
           id?: string
-          image_path?: string | null
           organization_id: string
+          price: number
           slug: string
           status?: string
           title: string
@@ -107,11 +109,12 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          compare_at_price?: number | null
           created_at?: string
           description?: string | null
           id?: string
-          image_path?: string | null
           organization_id?: string
+          price?: number
           slug?: string
           status?: string
           title?: string
@@ -172,6 +175,41 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          id: string
+          image_path: string
+          item_id: string
+          sort_order: number
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_path: string
+          item_id: string
+          sort_order?: number
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string
+          item_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_images_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
             referencedColumns: ["id"]
           },
         ]

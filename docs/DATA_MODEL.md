@@ -108,8 +108,9 @@ Unique on `(organization_id, slug)`.
 
 ### `catalog_items`
 
-Products and services, treated identically apart from the `type` column —
-neither has stock, quantity, or price.
+Products and services, treated identically apart from the `type` column.
+`price`/`compare_at_price` are **display-only** — see AGENTS.md's "price is
+a display field, not a feature" note; neither has stock, quantity, or SKU.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -121,10 +122,12 @@ neither has stock, quantity, or price.
 | `slug` | `text` | |
 | `description` | `text` | nullable |
 | `status` | `text` | `check (status in ('draft','published','archived'))`, `default 'draft'` |
-| `image_path` | `text` | nullable |
+| `price` | `numeric(10,2)` | `check (price >= 0)`. BDT, no currency column (single-currency platform) |
+| `compare_at_price` | `numeric(10,2)` | nullable, `check (compare_at_price is null or compare_at_price >= price)` — an optional "was" price for a plain was/now display |
 | `created_at`, `updated_at` | `timestamptz` | |
 
-Unique on `(organization_id, slug)`.
+Unique on `(organization_id, slug)`. Images are **not** a column here — see
+`item_images` below; a product supports a full image gallery, not one photo.
 
 `category_id → categories(id)` uses **`ON DELETE RESTRICT`** (not cascade) —
 the brief requires blocking category deletion while any item still
@@ -158,6 +161,24 @@ never stock, quantity, or price.
 No `organization_id` column — visibility and write access are always
 derived by joining back to the parent `catalog_items` row (see
 `docs/RLS_POLICIES.md`). Index on `item_id`.
+
+### `item_images`
+
+A product's image gallery — zero or more images per item.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` pk | |
+| `item_id` | `uuid`, fk → `catalog_items(id)` | `on delete cascade` |
+| `image_path` | `text` | |
+| `alt_text` | `text` | nullable |
+| `sort_order` | `int` | `default 0` |
+| `created_at` | `timestamptz` | |
+
+Same shape as `item_variants` in every way that matters: no
+`organization_id` column, visibility/write access derived by joining back to
+the parent `catalog_items` row. **The lowest `sort_order` is the cover image
+by convention** — no separate `is_primary` flag. Index on `item_id`.
 
 ### `banners`
 

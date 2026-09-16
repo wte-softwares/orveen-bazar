@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Baloo_Da_2, Anek_Bangla } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// The client's design system pairs a Bengali-script display face for
+// headings with a Bengali-script text face for body copy — both are real
+// Google Fonts families (the "Da 2" / "Bangla" variants specifically carry
+// Bengali glyph coverage, unlike the base "Baloo 2"/"Anek" families).
+const headingFont = Baloo_Da_2({
+  variable: "--font-heading",
+  subsets: ["latin", "bengali"],
+  weight: ["500", "600", "700", "800"],
+});
+
+const bodyFont = Anek_Bangla({
+  variable: "--font-body",
+  subsets: ["latin", "bengali"],
 });
 
 const geistMono = Geist_Mono({
@@ -36,9 +46,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${headingFont.variable} ${bodyFont.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col font-body">
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

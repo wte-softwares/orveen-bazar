@@ -99,20 +99,25 @@ Query: `type`, `status`, `q`, `page`, `pageSize`. Returns items of every
 status (draft/published/archived), unlike the public catalog endpoint.
 
 ### `POST /admin/[org]/items`
-Body: `{ title, slug, type, description?, categoryId, status?, imagePath?, variants?: [{label, value, sortOrder?}] }`.
-`categoryId` must belong to `:org` — checked before insert (`422
-invalid_category` if not) and enforced again by a database trigger as a
-hard guarantee. `409` on a duplicate slug within `:org`. `201 { item }`.
+Body: `{ title, slug, type, description?, categoryId, status?, price, compareAtPrice?, images?: [{path, altText?, sortOrder?}], variants?: [{label, value, sortOrder?}] }`.
+`price`/`compareAtPrice` are display-only (see AGENTS.md) — `compareAtPrice`,
+if set, must be ≥ `price` (`422` otherwise). `images[0]` is the cover image
+by convention; each `path` comes from `POST /uploads`. `categoryId` must
+belong to `:org` — checked before insert (`422 invalid_category` if not) and
+enforced again by a database trigger as a hard guarantee. `409` on a
+duplicate slug within `:org`. `201 { item }`.
 
 ### `GET /admin/[org]/items/[id]`
-Full editor payload including `item_variants`, ordered by `sort_order`.
+Full editor payload including `item_images` and `item_variants`, each
+ordered by `sort_order`.
 
 ### `PATCH /admin/[org]/items/[id]`
 Same body shape as create, all fields optional — only provided fields
 change. Setting `status: "published"` runs the publish pipeline first
-(copies `imagePath` into the public bucket, then flips status); moving away
-from `published` scrubs the public copy after the status change, in the
-same request. Providing `variants` replaces the item's variant list
+(copies every image in `images` into the public bucket, then flips status);
+moving away from `published` scrubs every public copy after the status
+change, in the same request. Providing `images` or `variants` replaces that
+whole list
 wholesale.
 
 ### `DELETE /admin/[org]/items/[id]`

@@ -13,7 +13,9 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > types/database.types.ts",
-    "db:seed:users": "node --env-file=.env.local scripts/seed-test-users.mjs"
+    "db:seed:users": "node --env-file=.env.local scripts/seed-test-users.mjs",
+    "db:seed:assets": "node --env-file=.env.local scripts/seed-assets.mjs",
+    "db:seed": "npm run db:seed:users && npm run db:seed:assets"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -46,6 +48,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

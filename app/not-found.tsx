@@ -11,7 +11,7 @@ export default function NotFound() {
       <p className="text-muted-foreground">
         The page you&rsquo;re looking for doesn&rsquo;t exist or is no longer available.
       </p>
-      <Button render={<Link href="/">Back to home</Link>} />
+      <Button nativeButton={false} render={<Link href="/">Back to home</Link>} />
     </div>
   );
 }

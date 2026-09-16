@@ -1,6 +1,9 @@
 -- Products and services, treated identically apart from `type`. NEVER add a
--- stock/quantity/price column here — this platform has no transactional
--- e-commerce functionality by design (see AGENTS.md).
+-- stock/quantity column, or any column that computes with price (tax,
+-- discount, subtotal) — this platform displays a price, it does not
+-- transact with one (see AGENTS.md). Images live in the separate
+-- `item_images` gallery table (supabase/migrations/20260101000016_item_images.sql),
+-- not a single column here — a product supports a full image gallery.
 create table public.catalog_items (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations (id) on delete cascade,
@@ -13,17 +16,21 @@ create table public.catalog_items (
   slug text not null,
   description text,
   status text not null default 'draft' check (status in ('draft', 'published', 'archived')),
-  -- Path in the (private) org-drafts bucket while draft, copied into the
-  -- public org-public bucket by lib/storage/publish.ts on publish. See
-  -- docs/ARCHITECTURE.md, "Storage strategy".
-  image_path text,
+  -- Display-only. Nothing in the app sums, discounts, or taxes this value —
+  -- it is read and rendered, never computed with. BDT, no currency column
+  -- (single-currency platform).
+  price numeric(10, 2) not null check (price >= 0),
+  -- Optional "was" price for a plain was/now display. Never used to derive
+  -- a discount amount server-side — if a percentage is ever shown, it's
+  -- computed client-side for display only, from these two plain numbers.
+  compare_at_price numeric(10, 2) check (compare_at_price is null or compare_at_price >= price),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (organization_id, slug)
 );
 
 comment on table public.catalog_items is
-  'Products/services. No stock, quantity, or price columns — descriptive only. Writable by staff of the owning organization, or a platform admin.';
+  'Products/services. price/compare_at_price are display-only (see AGENTS.md) — no stock, quantity, or SKU columns. Writable by staff of the owning organization, or a platform admin.';
 
 create index catalog_items_organization_status_idx
   on public.catalog_items (organization_id, status);

@@ -3,11 +3,15 @@ import { requireOrgAccess } from "@/lib/api/org-guard";
 import { assertCategoryInOrganization } from "@/lib/queries/catalog";
 import { createItemSchema } from "@/lib/validation/item.schema";
 import { parsePagination } from "@/lib/api/pagination";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { publishDraftAsset } from "@/lib/storage/publish";
 import { ok } from "@/lib/api/response";
 import { ApiError, ConflictError, UnauthorizedError, withApiHandler } from "@/lib/api/errors";
 
+// price/compare_at_price are display-only (see AGENTS.md). item_images is
+// the item's gallery — index 0 is the cover image by convention.
 const ADMIN_ITEM_LIST_COLUMNS =
-  "id, slug, title, type, status, image_path, category:categories(id, slug, name)";
+  "id, slug, title, type, status, price, compare_at_price, item_images(image_path, sort_order), category:categories(id, slug, name)";
 
 export const GET = withApiHandler(
   async (request: Request, { params }: { params: Promise<{ org: string }> }) => {
@@ -36,6 +40,7 @@ export const GET = withApiHandler(
 
     const { data, error, count } = await query
       .order("updated_at", { ascending: false })
+      .order("sort_order", { referencedTable: "item_images" })
       .range(from, to);
 
     if (error) throw error;
@@ -63,7 +68,8 @@ export const POST = withApiHandler(
         slug: body.slug,
         description: body.description ?? null,
         status: body.status,
-        image_path: body.imagePath ?? null,
+        price: body.price,
+        compare_at_price: body.compareAtPrice ?? null,
       })
       .select("id, slug, title, type, status")
       .single();
@@ -74,13 +80,13 @@ export const POST = withApiHandler(
       if (error.code === "23505") {
         throw new ConflictError("An item with this slug already exists for this brand.");
       }
-      // 23514 (check_violation) is the enforce_item_category_same_organization
-      // trigger's error code — the assertCategoryInOrganization() pre-check
-      // above should always catch this first, but a race (the category
-      // moves/deletes between the check and this insert) could still reach
-      // the trigger directly, so map it to the same clean 422 as a backstop.
+      // 23514 (check_violation) covers both the enforce_item_category_same_
+      // organization trigger AND the compare-at-price check constraint —
+      // the pre-checks above (and the Zod refine) should always catch these
+      // first, but a race could still reach the database directly, so map
+      // either to a clean 422 as a backstop rather than a raw 500.
       if (error.code === "23514") {
-        throw new ApiError(422, "invalid_category", "Choose a category that belongs to this brand.");
+        throw new ApiError(422, "invalid_item", "Check the category and price fields and try again.");
       }
       throw error;
     }
@@ -95,6 +101,30 @@ export const POST = withApiHandler(
         })),
       );
       if (variantError) throw variantError;
+    }
+
+    if (body.images.length > 0) {
+      const { error: imageError } = await auth.supabase.from("item_images").insert(
+        body.images.map((image, index) => ({
+          item_id: item.id,
+          image_path: image.path,
+          alt_text: image.altText ?? null,
+          sort_order: image.sortOrder ?? index,
+        })),
+      );
+      if (imageError) throw imageError;
+
+      // Creating an item as already-published (one-step create-and-publish)
+      // still goes through the copy-then-flip pipeline — the row above is
+      // already 'published' by the time we get here, but the images must
+      // exist in the public bucket regardless of insert order, so publish
+      // them now rather than leaving a published row with private images.
+      if (body.status === "published") {
+        const adminClient = createAdminClient();
+        for (const image of body.images) {
+          await publishDraftAsset(adminClient, image.path);
+        }
+      }
     }
 
     return ok(item, { status: 201 });

@@ -65,7 +65,5 @@ export async function unpublishAsset(adminClient: SupabaseClient<Database>, path
   }
 }
 
-/** Public URL for an object already confirmed to be in `org-public`. */
-export function getPublicAssetUrl(supabase: SupabaseClient<Database>, path: string): string {
-  return supabase.storage.from("org-public").getPublicUrl(path).data.publicUrl;
-}
+// Public URL construction lives in lib/storage/public-url.ts (pure string
+// formatting, no client instance needed) rather than here.

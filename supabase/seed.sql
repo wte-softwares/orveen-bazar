@@ -4,16 +4,19 @@
 -- combined — a soft guideline, not an enforced limit). Runs automatically
 -- on `supabase db reset` (see supabase/config.toml, [db.seed]).
 --
--- Organizations use fixed, RFC 4122 version-4-shaped ids (version nibble
--- '4', variant nibble 'a') so `scripts/seed-test-users.mjs` can attach
--- memberships to them without an extra lookup, AND so they pass the same
--- strict `z.uuid()` validation real request payloads go through — a
+-- Organizations/categories/items/banners use fixed, RFC 4122
+-- version-4-shaped ids (version nibble '4', variant nibble 'a') so
+-- `scripts/seed-test-users.mjs` and `scripts/seed-assets.mjs` can attach
+-- memberships/images to them without an extra lookup, AND so they pass the
+-- same strict `z.uuid()` validation real request payloads go through — a
 -- cosmetically "nice" but non-v4 id (e.g. ending in all zeros) would be
 -- rejected by lib/validation/*.schema.ts even though Postgres itself
--- doesn't care about UUID version bits. Auth users can't be created here:
--- Supabase Auth needs its Admin API to produce a correctly-hashed,
--- correctly-linked account, which plain SQL can't safely replicate — see
--- that script.
+-- doesn't care about UUID version bits.
+--
+-- Auth users can't be created here (see scripts/seed-test-users.mjs), and
+-- neither can real images (see scripts/seed-assets.mjs) — both need an
+-- API/Admin client, which plain SQL doesn't have. Run both after this file
+-- applies: `npm run db:seed:users && npm run db:seed:assets`.
 
 insert into public.organizations (id, slug, name, description, contact_text, is_active) values
   ('11111111-1111-4111-a111-111111111111', 'orveen-bazar', 'ORVEEN BAZAR.COM',
@@ -39,30 +42,31 @@ insert into public.categories (id, organization_id, name, slug, sort_order) valu
 
 -- ------------------------------------------------------------------- items
 -- 20 total across the three brands, all published (bar one draft, to
--- exercise the "staff sees drafts, public doesn't" RLS case), all with at
--- least one descriptive variant where relevant — no price, stock, or
--- quantity columns anywhere.
-insert into public.catalog_items (id, organization_id, category_id, type, title, slug, description, status) values
-  ('a1111111-0001-4000-a000-000000000001', '11111111-1111-4111-a111-111111111111', 'c1111111-0001-4000-a000-000000000001', 'product', 'Soybean Oil', 'soybean-oil', 'Refined soybean cooking oil.', 'published'),
-  ('a1111111-0002-4000-a000-000000000002', '11111111-1111-4111-a111-111111111111', 'c1111111-0001-4000-a000-000000000001', 'product', 'Mustard Oil', 'mustard-oil', 'Cold-pressed mustard oil.', 'published'),
-  ('a1111111-0003-4000-a000-000000000003', '11111111-1111-4111-a111-111111111111', 'c1111111-0002-4000-a000-000000000002', 'product', 'Premium Miniket Rice', 'premium-miniket-rice', 'Fine-grain miniket rice.', 'published'),
-  ('a1111111-0004-4000-a000-000000000004', '11111111-1111-4111-a111-111111111111', 'c1111111-0002-4000-a000-000000000002', 'product', 'Red Lentils', 'red-lentils', 'Split red lentils (masoor dal).', 'published'),
-  ('a1111111-0005-4000-a000-000000000005', '11111111-1111-4111-a111-111111111111', 'c1111111-0002-4000-a000-000000000002', 'product', 'Wheat Flour', 'wheat-flour', 'Fine wheat flour (atta).', 'published'),
-  ('a1111111-0006-4000-a000-000000000006', '11111111-1111-4111-a111-111111111111', 'c1111111-0003-4000-a000-000000000003', 'product', 'Turmeric Powder', 'turmeric-powder', 'Ground turmeric.', 'published'),
-  ('a1111111-0007-4000-a000-000000000007', '11111111-1111-4111-a111-111111111111', 'c1111111-0003-4000-a000-000000000003', 'product', 'Cumin Powder', 'cumin-powder', 'Ground cumin.', 'published'),
-  ('a1111111-0008-4000-a000-000000000008', '11111111-1111-4111-a111-111111111111', 'c1111111-0003-4000-a000-000000000003', 'product', 'Garam Masala', 'garam-masala', 'Blended whole-spice mix.', 'draft'),
-  ('a2222222-0001-4000-a000-000000000001', '22222222-2222-4222-a222-222222222222', 'c2222222-0001-4000-a000-000000000001', 'product', 'Multi-Surface Cleaner', 'multi-surface-cleaner', 'Plant-based multi-surface cleaner.', 'published'),
-  ('a2222222-0002-4000-a000-000000000002', '22222222-2222-4222-a222-222222222222', 'c2222222-0001-4000-a000-000000000001', 'product', 'Glass Cleaner', 'glass-cleaner', 'Streak-free glass cleaner.', 'published'),
-  ('a2222222-0003-4000-a000-000000000003', '22222222-2222-4222-a222-222222222222', 'c2222222-0001-4000-a000-000000000001', 'product', 'Dish Wash Liquid', 'dish-wash-liquid', 'Grease-cutting dish soap.', 'published'),
-  ('a2222222-0004-4000-a000-000000000004', '22222222-2222-4222-a222-222222222222', 'c2222222-0002-4000-a000-000000000002', 'product', 'Laundry Detergent Powder', 'laundry-detergent-powder', 'Concentrated detergent powder.', 'published'),
-  ('a2222222-0005-4000-a000-000000000005', '22222222-2222-4222-a222-222222222222', 'c2222222-0002-4000-a000-000000000002', 'product', 'Fabric Softener', 'fabric-softener', 'Long-lasting fabric softener.', 'published'),
-  ('a2222222-0006-4000-a000-000000000006', '22222222-2222-4222-a222-222222222222', 'c2222222-0002-4000-a000-000000000002', 'service', 'Bulk Laundry Supply Consultation', 'bulk-laundry-supply-consultation', 'Advisory service for institutional laundry supply planning.', 'published'),
-  ('a3333333-0001-4000-a000-000000000001', '33333333-3333-4333-a333-333333333333', 'c3333333-0001-4000-a000-000000000001', 'product', 'LED Bulb 9W', 'led-bulb-9w', 'Energy-saving LED bulb.', 'published'),
-  ('a3333333-0002-4000-a000-000000000002', '33333333-3333-4333-a333-333333333333', 'c3333333-0001-4000-a000-000000000001', 'product', 'Extension Cord', 'extension-cord', 'Multi-socket extension cord.', 'published'),
-  ('a3333333-0003-4000-a000-000000000003', '33333333-3333-4333-a333-333333333333', 'c3333333-0002-4000-a000-000000000002', 'product', 'Herbal Soap', 'herbal-soap', 'Natural herbal bathing soap.', 'published'),
-  ('a3333333-0004-4000-a000-000000000004', '33333333-3333-4333-a333-333333333333', 'c3333333-0002-4000-a000-000000000002', 'product', 'Toothpaste', 'toothpaste', 'Fluoride toothpaste, mint flavour.', 'published'),
-  ('a3333333-0005-4000-a000-000000000005', '33333333-3333-4333-a333-333333333333', 'c3333333-0003-4000-a000-000000000003', 'product', 'Notebook Pack', 'notebook-pack', '5-pack ruled notebooks.', 'published'),
-  ('a3333333-0006-4000-a000-000000000006', '33333333-3333-4333-a333-333333333333', 'c3333333-0003-4000-a000-000000000003', 'product', 'Ballpoint Pen Box', 'ballpoint-pen-box', 'Box of 10 ballpoint pens.', 'published');
+-- exercise the "staff sees drafts, public doesn't" RLS case). price/
+-- compare_at_price are display-only (see AGENTS.md) — nothing computes with
+-- them; compare_at_price is set on a few items to exercise the "was/now"
+-- display case.
+insert into public.catalog_items (id, organization_id, category_id, type, title, slug, description, status, price, compare_at_price) values
+  ('a1111111-0001-4000-a000-000000000001', '11111111-1111-4111-a111-111111111111', 'c1111111-0001-4000-a000-000000000001', 'product', 'Soybean Oil', 'soybean-oil', 'Refined soybean cooking oil.', 'published', 189.00, 210.00),
+  ('a1111111-0002-4000-a000-000000000002', '11111111-1111-4111-a111-111111111111', 'c1111111-0001-4000-a000-000000000001', 'product', 'Mustard Oil', 'mustard-oil', 'Cold-pressed mustard oil.', 'published', 175.00, null),
+  ('a1111111-0003-4000-a000-000000000003', '11111111-1111-4111-a111-111111111111', 'c1111111-0002-4000-a000-000000000002', 'product', 'Premium Miniket Rice', 'premium-miniket-rice', 'Fine-grain miniket rice.', 'published', 410.00, null),
+  ('a1111111-0004-4000-a000-000000000004', '11111111-1111-4111-a111-111111111111', 'c1111111-0002-4000-a000-000000000002', 'product', 'Red Lentils', 'red-lentils', 'Split red lentils (masoor dal).', 'published', 145.00, 160.00),
+  ('a1111111-0005-4000-a000-000000000005', '11111111-1111-4111-a111-111111111111', 'c1111111-0002-4000-a000-000000000002', 'product', 'Wheat Flour', 'wheat-flour', 'Fine wheat flour (atta).', 'published', 62.00, null),
+  ('a1111111-0006-4000-a000-000000000006', '11111111-1111-4111-a111-111111111111', 'c1111111-0003-4000-a000-000000000003', 'product', 'Turmeric Powder', 'turmeric-powder', 'Ground turmeric.', 'published', 45.00, null),
+  ('a1111111-0007-4000-a000-000000000007', '11111111-1111-4111-a111-111111111111', 'c1111111-0003-4000-a000-000000000003', 'product', 'Cumin Powder', 'cumin-powder', 'Ground cumin.', 'published', 90.00, null),
+  ('a1111111-0008-4000-a000-000000000008', '11111111-1111-4111-a111-111111111111', 'c1111111-0003-4000-a000-000000000003', 'product', 'Garam Masala', 'garam-masala', 'Blended whole-spice mix.', 'draft', 120.00, null),
+  ('a2222222-0001-4000-a000-000000000001', '22222222-2222-4222-a222-222222222222', 'c2222222-0001-4000-a000-000000000001', 'product', 'Multi-Surface Cleaner', 'multi-surface-cleaner', 'Plant-based multi-surface cleaner.', 'published', 180.00, 210.00),
+  ('a2222222-0002-4000-a000-000000000002', '22222222-2222-4222-a222-222222222222', 'c2222222-0001-4000-a000-000000000001', 'product', 'Glass Cleaner', 'glass-cleaner', 'Streak-free glass cleaner.', 'published', 150.00, null),
+  ('a2222222-0003-4000-a000-000000000003', '22222222-2222-4222-a222-222222222222', 'c2222222-0001-4000-a000-000000000001', 'product', 'Dish Wash Liquid', 'dish-wash-liquid', 'Grease-cutting dish soap.', 'published', 130.00, null),
+  ('a2222222-0004-4000-a000-000000000004', '22222222-2222-4222-a222-222222222222', 'c2222222-0002-4000-a000-000000000002', 'product', 'Laundry Detergent Powder', 'laundry-detergent-powder', 'Concentrated detergent powder.', 'published', 220.00, 245.00),
+  ('a2222222-0005-4000-a000-000000000005', '22222222-2222-4222-a222-222222222222', 'c2222222-0002-4000-a000-000000000002', 'product', 'Fabric Softener', 'fabric-softener', 'Long-lasting fabric softener.', 'published', 190.00, null),
+  ('a2222222-0006-4000-a000-000000000006', '22222222-2222-4222-a222-222222222222', 'c2222222-0002-4000-a000-000000000002', 'service', 'Bulk Laundry Supply Consultation', 'bulk-laundry-supply-consultation', 'Advisory service for institutional laundry supply planning.', 'published', 500.00, null),
+  ('a3333333-0001-4000-a000-000000000001', '33333333-3333-4333-a333-333333333333', 'c3333333-0001-4000-a000-000000000001', 'product', 'LED Bulb 9W', 'led-bulb-9w', 'Energy-saving LED bulb.', 'published', 150.00, null),
+  ('a3333333-0002-4000-a000-000000000002', '33333333-3333-4333-a333-333333333333', 'c3333333-0001-4000-a000-000000000001', 'product', 'Extension Cord', 'extension-cord', 'Multi-socket extension cord.', 'published', 350.00, 400.00),
+  ('a3333333-0003-4000-a000-000000000003', '33333333-3333-4333-a333-333333333333', 'c3333333-0002-4000-a000-000000000002', 'product', 'Herbal Soap', 'herbal-soap', 'Natural herbal bathing soap.', 'published', 60.00, null),
+  ('a3333333-0004-4000-a000-000000000004', '33333333-3333-4333-a333-333333333333', 'c3333333-0002-4000-a000-000000000002', 'product', 'Toothpaste', 'toothpaste', 'Fluoride toothpaste, mint flavour.', 'published', 85.00, null),
+  ('a3333333-0005-4000-a000-000000000005', '33333333-3333-4333-a333-333333333333', 'c3333333-0003-4000-a000-000000000003', 'product', 'Notebook Pack', 'notebook-pack', '5-pack ruled notebooks.', 'published', 220.00, null),
+  ('a3333333-0006-4000-a000-000000000006', '33333333-3333-4333-a333-333333333333', 'c3333333-0003-4000-a000-000000000003', 'product', 'Ballpoint Pen Box', 'ballpoint-pen-box', 'Box of 10 ballpoint pens.', 'published', 100.00, 120.00);
 
 -- ----------------------------------------------------------- item_variants
 insert into public.item_variants (item_id, label, value, sort_order) values
@@ -74,17 +78,26 @@ insert into public.item_variants (item_id, label, value, sort_order) values
   ('a3333333-0004-4000-a000-000000000004', 'Flavour', 'Mint', 1),
   ('a3333333-0004-4000-a000-000000000004', 'Flavour', 'Herbal', 2);
 
--- ----------------------------------------------------------------- banners
-insert into public.banners (organization_id, image_path, alt_text, target_url, sort_order, is_active) values
-  ('11111111-1111-4111-a111-111111111111', '11111111-1111-4111-a111-111111111111/banners/seed-1/placeholder.jpg', 'ORVEEN BAZAR seasonal staples banner', '/brands/orveen-bazar', 1, true),
-  ('11111111-1111-4111-a111-111111111111', '11111111-1111-4111-a111-111111111111/banners/seed-2/placeholder.jpg', 'ORVEEN BAZAR spice collection banner', '/catalog?org=orveen-bazar', 2, true),
-  ('22222222-2222-4222-a222-222222222222', '22222222-2222-4222-a222-222222222222/banners/seed-1/placeholder.jpg', 'ECO FAST BD cleaning range banner', '/brands/eco-fast-bd', 1, true),
-  ('22222222-2222-4222-a222-222222222222', '22222222-2222-4222-a222-222222222222/banners/seed-2/placeholder.jpg', 'ECO FAST BD laundry care banner', '/catalog?org=eco-fast-bd', 2, true),
-  ('33333333-3333-4333-a333-333333333333', '33333333-3333-4333-a333-333333333333/banners/seed-1/placeholder.jpg', 'RELIABLE MULTI PRODUCTS home essentials banner', '/brands/reliable-multi-products', 1, true),
-  ('33333333-3333-4333-a333-333333333333', '33333333-3333-4333-a333-333333333333/banners/seed-2/placeholder.jpg', 'RELIABLE MULTI PRODUCTS stationery banner', '/catalog?org=reliable-multi-products', 2, true);
+-- ------------------------------------------------------------- item_images
+-- One cover image per item, at the same path scripts/seed-assets.mjs
+-- uploads to — see that script for the actual JPEG generation/upload
+-- (plain SQL can't touch Storage). Every path follows
+-- lib/storage/upload.ts's `{organizationId}/items/{itemId}/cover.jpg`
+-- convention.
+insert into public.item_images (item_id, image_path, alt_text, sort_order)
+select id, organization_id || '/items/' || id || '/cover.jpg', title, 0
+from public.catalog_items;
 
--- NOTE: the banner image_paths above point at placeholder objects that do
--- not actually exist in Storage — fine for exercising queries/RLS/pagination
--- against real rows, but a real image would need to be uploaded and
--- published through the normal admin flow (or a future
--- `npm run db:seed:assets` helper) to actually render locally.
+-- ----------------------------------------------------------------- banners
+insert into public.banners (id, organization_id, image_path, alt_text, target_url, sort_order, is_active) values
+  ('b1111111-0001-4000-a000-000000000001', '11111111-1111-4111-a111-111111111111', '11111111-1111-4111-a111-111111111111/banners/b1111111-0001-4000-a000-000000000001/cover.jpg', 'ORVEEN BAZAR seasonal staples banner', '/brands/orveen-bazar', 1, true),
+  ('b1111111-0002-4000-a000-000000000002', '11111111-1111-4111-a111-111111111111', '11111111-1111-4111-a111-111111111111/banners/b1111111-0002-4000-a000-000000000002/cover.jpg', 'ORVEEN BAZAR spice collection banner', '/catalog?org=orveen-bazar', 2, true),
+  ('b2222222-0001-4000-a000-000000000001', '22222222-2222-4222-a222-222222222222', '22222222-2222-4222-a222-222222222222/banners/b2222222-0001-4000-a000-000000000001/cover.jpg', 'ECO FAST BD cleaning range banner', '/brands/eco-fast-bd', 1, true),
+  ('b2222222-0002-4000-a000-000000000002', '22222222-2222-4222-a222-222222222222', '22222222-2222-4222-a222-222222222222/banners/b2222222-0002-4000-a000-000000000002/cover.jpg', 'ECO FAST BD laundry care banner', '/catalog?org=eco-fast-bd', 2, true),
+  ('b3333333-0001-4000-a000-000000000001', '33333333-3333-4333-a333-333333333333', '33333333-3333-4333-a333-333333333333/banners/b3333333-0001-4000-a000-000000000001/cover.jpg', 'RELIABLE MULTI PRODUCTS home essentials banner', '/brands/reliable-multi-products', 1, true),
+  ('b3333333-0002-4000-a000-000000000002', '33333333-3333-4333-a333-333333333333', '33333333-3333-4333-a333-333333333333/banners/b3333333-0002-4000-a000-000000000002/cover.jpg', 'RELIABLE MULTI PRODUCTS stationery banner', '/catalog?org=reliable-multi-products', 2, true);
+
+-- Logos, banner images, and item cover photos referenced above are placed
+-- into Storage by `npm run db:seed:assets` (scripts/seed-assets.mjs) after
+-- this file applies — plain SQL can't write to Storage, so the rows above
+-- describe where those objects belong, not their pixels.

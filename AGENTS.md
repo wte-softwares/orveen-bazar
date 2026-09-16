@@ -20,12 +20,29 @@ a platform admin manages everything.
 
 ## What this project is explicitly NOT
 
-**No cart, checkout, payments, inventory, shipping, bookings, refunds,
-invoices, or price calculation — anywhere, ever, for any reason.** No "Buy
-now" or "Add to cart" control may exist. If a request seems to need one of
-these, it's out of scope — say so instead of building it. Item "variants"
-(`item_variants`) are descriptive only (e.g. Size = 500ml) — never stock,
-quantity, SKU, or price.
+**No cart, checkout, payments, inventory/stock management, shipping,
+bookings, refunds, invoices, orders, or price *calculation* (tax, discounts,
+subtotals, totals) — anywhere, ever, for any reason.** If a request seems to
+need one of these, it's out of scope — say so instead of building it. Item
+"variants" (`item_variants`) are descriptive only (e.g. Size = 500ml) — never
+stock, quantity, or SKU.
+
+**Exception — price is a display field, not a feature.** `catalog_items` has
+`price` and `compare_at_price` (both plain decimals, BDT, no currency
+column) purely for showing "how much this costs" and an optional
+"was/now" comparison on the storefront. Nothing in the app ever sums,
+discounts, taxes, or otherwise computes with these values — they're read and
+rendered, never calculated with. Don't let this exception creep into
+building anything cart/order-shaped.
+
+**Cart/checkout/delivery UI exists visually but is intentionally inert.**
+The homepage design includes a cart icon, per-item cart buttons, and
+delivery/return-policy links — these render (per the client's explicit
+request to keep the visual language intact for a future phase) but are
+wired to a shared "coming soon" dialog (`components/common/ComingSoon*`)
+instead of any real behavior. Never wire one of these controls to actual
+cart/order logic without the client explicitly re-scoping that in — a
+disabled button here is a deliberate scope boundary, not a TODO.
 
 ## Non-negotiable architecture rules
 
@@ -89,11 +106,16 @@ a different element, use the `render` prop:
 
 ```tsx
 // Correct:
-<Button variant="outline" render={<Link href="/login">Log in</Link>} />
+<Button variant="outline" nativeButton={false} render={<Link href="/login">Log in</Link>} />
 
 // Wrong — will not type-check, asChild doesn't exist on this Button:
 <Button asChild><Link href="/login">Log in</Link></Button>
 ```
+
+`nativeButton` defaults to `true` regardless of what `render` points at, so
+swapping to a `<Link>` (an `<a>`, not a `<button>`) without also passing
+`nativeButton={false}` logs a Base UI console warning every render — pass it
+every time `render` targets anything other than a real `<button>`.
 
 `components/ui/**` and `hooks/use-mobile.ts` are vendored by the shadcn CLI
 and excluded from lint on purpose (see `eslint.config.mjs`) — don't hand-edit

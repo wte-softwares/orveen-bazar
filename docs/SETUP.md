@@ -52,7 +52,7 @@ NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54521
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<PUBLISHABLE_KEY from supabase status>
 SUPABASE_SECRET_KEY=<SECRET_KEY from supabase status>
 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54522/postgres
-SUPABASE_INBUCKET_URL=http://127.0.0.1:54524
+SUPABASE_MAILPIT_URL=http://127.0.0.1:54524
 NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000
 ```
 
@@ -65,6 +65,17 @@ npm run dev
 
 Visit `http://127.0.0.1:3000`. Local Supabase Studio (browse tables, run SQL,
 inspect auth users) is at `http://127.0.0.1:54523`.
+
+The database starts empty — `supabase/seed.sql` only inserts content rows
+(organizations, categories, items, banners), because auth users and real
+image files both need an Admin API/service client that plain SQL doesn't
+have. Run these once after every `db:reset`, in order:
+
+```bash
+npm run db:seed   # = db:seed:users (5 test accounts) + db:seed:assets
+                   # (brand logos + generated placeholder photos, uploaded
+                   # straight to org-public — see scripts/seed-assets.mjs)
+```
 
 ## Email confirmation flow (local)
 
@@ -81,8 +92,11 @@ local web UI is Mailpit).
 ```bash
 npm run db:start     # start the local Supabase stack
 npm run db:stop      # stop it (data persists in a Docker volume)
-npm run db:reset      # drop, re-run all migrations, and re-seed — use this
-                       # liberally, it's meant to be destroyed and rebuilt
+npm run db:reset      # drop, re-run all migrations, and re-seed content rows
+                       # — use this liberally, it's meant to be destroyed and
+                       # rebuilt, but re-run `npm run db:seed` after (below)
+npm run db:seed       # re-create the 5 test accounts + re-upload images —
+                       # needed after every db:reset, not automatic
 npm run db:types      # regenerate types/database.types.ts after a migration
                        # change — never hand-edit that file
 ```
@@ -108,3 +122,10 @@ the exact variable names both environments share.
   something else) is on that port. Check `docker ps` and, if needed, adjust
   `supabase/config.toml` to a free block — see the port table above for the
   scheme this project already uses.
+- **Images from Storage 400 with "upstream image ... resolved to private IP"
+  in the server log**: Next.js 16 blocks `next/image` from fetching a URL
+  that resolves to a private IP by default (SSRF hardening) — local Supabase
+  Storage at `127.0.0.1:54521` is exactly that. `next.config.ts` already sets
+  `images.dangerouslyAllowLocalIP: true` for non-production, so this should
+  only resurface if `NODE_ENV` is somehow `production` locally, or after
+  editing that config — don't widen it to production.

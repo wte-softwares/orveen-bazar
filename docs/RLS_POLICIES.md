@@ -28,6 +28,7 @@ client-readable policies themselves.
 | `categories` | active rows of active organizations | + all rows of organizations the caller has membership in, or all for a platform admin | staff with `has_org_membership(auth.uid(), organization_id)`, or platform admin; `WITH CHECK` on `organization_id` |
 | `catalog_items` | `status = 'published'` rows of active organizations | + all statuses in the caller's own/admin organizations | same membership rule as `categories`; `WITH CHECK` on `organization_id`; the cross-tenant category trigger is a second, independent guarantee |
 | `item_variants` | follows the parent `catalog_items` row (see below) | follows the parent row | follows the parent item's membership rule — `WITH CHECK` re-validates the **new** `item_id`'s organization on every write, not the existing row's |
+| `item_images` | follows the parent `catalog_items` row, identical pattern to `item_variants` | follows the parent row | identical pattern to `item_variants`, including the same **new** `item_id` re-validation on update |
 | `banners` | active rows of active organizations | + all rows of the caller's own/admin organizations | same membership rule as `categories` |
 | `wishlists` | none | owner only: `auth.uid() = user_id` | owner only; insert is idempotent (`on conflict do nothing`) at the API layer |
 

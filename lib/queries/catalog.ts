@@ -10,8 +10,11 @@ import { ApiError } from "@/lib/api/errors";
  * way. See docs/ARCHITECTURE.md, "Read path".
  */
 
+// price/compare_at_price are display-only (see AGENTS.md) — selected here
+// purely to render, never to compute with. item_images is ordered by
+// sort_order so callers can treat index 0 as the cover image by convention.
 const ITEM_LIST_COLUMNS =
-  "id, slug, title, description, type, image_path, organization:organizations!inner(slug, name, is_active), category:categories!inner(slug, name)";
+  "id, slug, title, description, type, price, compare_at_price, item_images(image_path, alt_text, sort_order), organization:organizations!inner(slug, name, is_active), category:categories!inner(slug, name)";
 
 const ITEM_DETAIL_COLUMNS = `${ITEM_LIST_COLUMNS}, item_variants(id, label, value, sort_order)`;
 
@@ -50,6 +53,7 @@ export async function listPublishedCatalogItems(
 
   const { data, error, count } = await query
     .order("created_at", { ascending: false })
+    .order("sort_order", { referencedTable: "item_images" })
     .range(filters.from, filters.to);
 
   if (error) throw error;
@@ -94,6 +98,7 @@ export async function findPublishedItemBySlug(
     .eq("status", "published")
     .eq("organization.is_active", true)
     .order("sort_order", { referencedTable: "item_variants" })
+    .order("sort_order", { referencedTable: "item_images" })
     .maybeSingle();
 
   if (error) throw error;
