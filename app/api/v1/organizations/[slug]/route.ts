@@ -1,11 +1,15 @@
-import { notImplemented } from "@/lib/api/response";
+import { createClient } from "@/lib/supabase/server";
+import { findActiveOrganizationBySlug } from "@/lib/queries/brands";
+import { ok } from "@/lib/api/response";
+import { NotFoundError, withApiHandler } from "@/lib/api/errors";
 
-// GET — one active organization's public profile by slug, 404 if inactive
-// or missing, via lib/queries/brands.ts.
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
-  await params;
-  return notImplemented("GET /api/v1/organizations/[slug]");
-}
+export const GET = withApiHandler(
+  async (_request: Request, { params }: { params: Promise<{ slug: string }> }) => {
+    const { slug } = await params;
+    const supabase = await createClient();
+    const organization = await findActiveOrganizationBySlug(supabase, slug);
+
+    if (!organization) throw new NotFoundError("Organization not found.");
+    return ok(organization);
+  },
+);

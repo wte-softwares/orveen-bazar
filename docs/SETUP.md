@@ -22,7 +22,7 @@ something is broken.**
 | Postgres | 54322 | **54522** |
 | Shadow DB | 54320 | **54520** |
 | Studio | 54323 | **54523** |
-| Inbucket (email testing) | 54324 | **54524** |
+| Mailpit (email testing) | 54324 | **54524** |
 | Connection pooler | 54329 | **54529** |
 | Analytics | 54327 | **54527** |
 
@@ -71,8 +71,10 @@ inspect auth users) is at `http://127.0.0.1:54523`.
 `supabase/config.toml` has `auth.email.enable_confirmations = true`, so
 registration requires confirming an email before login — matching the
 brief's requirement for a working "confirm email" step. Locally, these
-emails don't go anywhere real: open **Inbucket** at
-`http://127.0.0.1:54524` to read them.
+emails don't go anywhere real: open **Mailpit** at
+`http://127.0.0.1:54524` to read them (the Supabase CLI's config keys and
+some tooling still say "Inbucket" — that's the tool this replaced; the
+local web UI is Mailpit).
 
 ## Everyday commands
 

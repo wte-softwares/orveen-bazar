@@ -4,6 +4,13 @@ This is the policy design Phase 2's migrations implement. Every table below
 has RLS **enabled from the migration that creates it** — there is no
 intermediate state where a table exists without RLS turned on.
 
+**RLS is only half of this.** Every table below also needs an explicit
+`GRANT` to `anon`/`authenticated` for the operations its policies allow —
+this Supabase project does not auto-expose new tables to those roles, so a
+table with correct RLS policies but no grant still fails every query with
+"permission denied" before RLS even gets a chance to filter rows. See
+`supabase/migrations/20260101000015_table_privileges.sql` and `AGENTS.md`.
+
 Two helper functions make the policies below possible without recursive-RLS
 problems (see `docs/DATA_MODEL.md`): `is_platform_admin(uid)` and
 `has_org_membership(uid, org_id)`, both `SECURITY DEFINER` so they can read

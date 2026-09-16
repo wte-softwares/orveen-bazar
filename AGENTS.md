@@ -40,28 +40,43 @@ quantity, SKU, or price.
    places. See docs/ARCHITECTURE.md, "Read path".
 2. **No `src/` directory.** Everything lives at the repo root
    (`app/`, `components/`, `lib/`, `types/`, etc.).
-3. **Row Level Security is the real authorization boundary**, on every
+3. **Every new table needs an explicit `GRANT` in addition to its RLS
+   policies.** This project's Supabase config does not auto-expose new
+   tables (`auto_expose_new_tables` is unset — the current, non-deprecated
+   default) — a table with perfect RLS policies but no `grant select ...
+   to anon, authenticated` still returns "permission denied" for every
+   query, because the GRANT and the RLS policy are two independent checks:
+   the GRANT says "this role may attempt this kind of query at all," RLS
+   then decides which rows it can see. See
+   `supabase/migrations/20260101000015_table_privileges.sql` for the
+   pattern — grant only the operations each role's policies actually allow.
+   This includes `service_role` (the client in `lib/supabase/admin.ts`):
+   `BYPASSRLS` skips row filtering, it does not imply the table-level GRANT,
+   which is a separate permission system — grant `service_role` full access
+   on every table explicitly, even ones with zero anon/authenticated
+   policies.
+4. **Row Level Security is the real authorization boundary**, on every
    exposed table, from the first migration that creates it — never add a
    table and defer RLS "for later." Route Handlers additionally re-check
    membership/role via `lib/api/org-guard.ts` for a clean error response;
    that check is defense-in-depth, not a substitute for RLS. A forged
    organization ID in a URL param, body field, or query filter must fail
    both layers independently — see docs/RLS_POLICIES.md.
-4. **The service/secret key (`SUPABASE_SECRET_KEY`) never reaches client
+5. **The service/secret key (`SUPABASE_SECRET_KEY`) never reaches client
    code, never gets logged, and is only ever imported through
    `lib/supabase/admin.ts`**, which is guarded with `import "server-only"`.
    If you need it for something, ask whether that something should really be
    an RLS-scoped query instead — the admin client bypasses RLS entirely.
-5. **Draft media must never be publicly reachable before publish.** Uploads
+6. **Draft media must never be publicly reachable before publish.** Uploads
    land in the private `org-drafts` bucket; `lib/storage/publish.ts` copies
    to the public `org-public` bucket only when the owning row is published,
    and scrubs the public copy the moment it's unpublished/archived, in the
    same request. Don't build a second, simpler upload path that skips this.
-6. **No giant single-file modules.** If a Route Handler's logic grows past
+7. **No giant single-file modules.** If a Route Handler's logic grows past
    "validate → guard → one or two DB calls → respond," extract it into
    `lib/queries/`, `lib/storage/`, or a resource-specific helper — don't let
    business logic accumulate inside `route.ts` files.
-7. **Comment the "why," not just the "what."** Especially for anything
+8. **Comment the "why," not just the "what."** Especially for anything
    touching authorization, storage publish ordering, or cross-tenant
    integrity — these are exactly the places a future reader (human or agent)
    will be tempted to "simplify" in a way that reopens a closed security gap.

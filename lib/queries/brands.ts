@@ -1,11 +1,42 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database.types";
+
 /**
- * PHASE 2 MODULE — not implemented yet.
+ * Shared "active organizations" read logic — called by BOTH the family
+ * homepage / brand page Server Components and the `/api/v1/organizations`
+ * Route Handlers, so the two transports can never quietly disagree about
+ * what "an active brand" means. See docs/ARCHITECTURE.md, "Read path".
  *
- * Shared "list active organizations" / "find one active organization by
- * slug" query logic for the family homepage and brand pages, following the
- * same shared-query-module pattern as lib/queries/catalog.ts.
- *
- * Exports to add here: `listActiveOrganizations()`,
- * `findActiveOrganizationBySlug(slug)`.
+ * Takes an already-created Supabase client rather than creating its own:
+ * the caller (a Server Component or a Route Handler) knows whether it needs
+ * the cookie-bound server client or an auth-resolved one, this module
+ * doesn't need to care.
  */
-export {};
+
+const ORGANIZATION_COLUMNS = "id, slug, name, description, logo_path, contact_text";
+
+export async function listActiveOrganizations(supabase: SupabaseClient<Database>) {
+  const { data, error } = await supabase
+    .from("organizations")
+    .select(ORGANIZATION_COLUMNS)
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function findActiveOrganizationBySlug(
+  supabase: SupabaseClient<Database>,
+  slug: string,
+) {
+  const { data, error } = await supabase
+    .from("organizations")
+    .select(ORGANIZATION_COLUMNS)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}

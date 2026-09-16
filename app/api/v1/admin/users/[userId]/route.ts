@@ -1,12 +1,46 @@
-import { notImplemented } from "@/lib/api/response";
+import { getAuthContext } from "@/lib/api/auth";
+import { requirePlatformAdmin } from "@/lib/api/org-guard";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { ok } from "@/lib/api/response";
+import { NotFoundError, UnauthorizedError, withApiHandler } from "@/lib/api/errors";
 
-// DELETE — revoke a membership or platform-admin grant. PLATFORM ADMIN ONLY.
-// Access is revoked on the user's very next request — membership is checked
-// live via lib/api/org-guard.ts on every call, never cached in a JWT claim.
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ userId: string }> },
-) {
-  await params;
-  return notImplemented("DELETE /api/v1/admin/users/[userId]");
-}
+// ?organizationId=<uuid> revokes that one org membership; omitted revokes
+// platform-admin status. Two different grants, two different targets — a
+// single implicit "delete this user's access" would be ambiguous for a
+// platform admin who ALSO happens to hold a staff membership somewhere.
+export const DELETE = withApiHandler(
+  async (request: Request, { params }: { params: Promise<{ userId: string }> }) => {
+    const auth = await getAuthContext(request);
+    if (!auth) throw new UnauthorizedError();
+    await requirePlatformAdmin(auth);
+
+    const { userId } = await params;
+    const organizationId = new URL(request.url).searchParams.get("organizationId");
+
+    // Writes go through the service-role client: memberships/platform_admins
+    // have no client-writable RLS policies at all (see
+    // docs/RLS_POLICIES.md) — the requirePlatformAdmin() check above is what
+    // authorizes this, not RLS, which is intentionally impossible to satisfy
+    // as any client role here.
+    const admin = createAdminClient();
+
+    if (organizationId) {
+      const { error, count } = await admin
+        .from("memberships")
+        .delete({ count: "exact" })
+        .eq("user_id", userId)
+        .eq("organization_id", organizationId);
+      if (error) throw error;
+      if (!count) throw new NotFoundError("Membership not found.");
+      return ok({ revoked: "membership" });
+    }
+
+    const { error, count } = await admin
+      .from("platform_admins")
+      .delete({ count: "exact" })
+      .eq("user_id", userId);
+    if (error) throw error;
+    if (!count) throw new NotFoundError("Platform admin grant not found.");
+    return ok({ revoked: "platform_admin" });
+  },
+);

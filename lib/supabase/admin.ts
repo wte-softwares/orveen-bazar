@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database.types";
 
 /**
  * Service-role ("secret key") Supabase client — BYPASSES Row Level Security
@@ -32,7 +33,7 @@ export function createAdminClient() {
     );
   }
 
-  return createSupabaseClient(
+  return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     secretKey,
     {

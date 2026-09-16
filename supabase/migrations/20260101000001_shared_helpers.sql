@@ -1,0 +1,14 @@
+-- Shared helper used by every table below that has an `updated_at` column.
+-- One trigger function instead of repeating the same three lines per table.
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+comment on function public.set_updated_at() is
+  'Generic BEFORE UPDATE trigger: stamps updated_at = now() on every row update.';

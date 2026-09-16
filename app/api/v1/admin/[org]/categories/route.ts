@@ -1,20 +1,56 @@
-import { notImplemented } from "@/lib/api/response";
+import { getAuthContext } from "@/lib/api/auth";
+import { requireOrgAccess } from "@/lib/api/org-guard";
+import { createCategorySchema } from "@/lib/validation/category.schema";
+import { ok } from "@/lib/api/response";
+import { ConflictError, UnauthorizedError, withApiHandler } from "@/lib/api/errors";
 
-// GET  — categories in :org, staff-of-:org or platform-admin only.
-// POST — create a category in :org; validated by
-// lib/validation/category.schema.ts, authorized by lib/api/org-guard.ts.
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ org: string }> },
-) {
-  await params;
-  return notImplemented("GET /api/v1/admin/[org]/categories");
-}
+export const GET = withApiHandler(
+  async (request: Request, { params }: { params: Promise<{ org: string }> }) => {
+    const auth = await getAuthContext(request);
+    if (!auth) throw new UnauthorizedError();
 
-export async function POST(
-  _request: Request,
-  { params }: { params: Promise<{ org: string }> },
-) {
-  await params;
-  return notImplemented("POST /api/v1/admin/[org]/categories");
-}
+    const { org } = await params;
+    const organization = await requireOrgAccess(auth, org);
+
+    const { data, error } = await auth.supabase
+      .from("categories")
+      .select("id, slug, name, sort_order, is_active")
+      .eq("organization_id", organization.id)
+      .order("sort_order", { ascending: true });
+
+    if (error) throw error;
+    return ok(data);
+  },
+);
+
+export const POST = withApiHandler(
+  async (request: Request, { params }: { params: Promise<{ org: string }> }) => {
+    const auth = await getAuthContext(request);
+    if (!auth) throw new UnauthorizedError();
+
+    const { org } = await params;
+    const organization = await requireOrgAccess(auth, org);
+    const body = createCategorySchema.parse(await request.json());
+
+    const { data, error } = await auth.supabase
+      .from("categories")
+      .insert({
+        organization_id: organization.id,
+        name: body.name,
+        slug: body.slug,
+        sort_order: body.sortOrder,
+        is_active: body.isActive,
+      })
+      .select("id, slug, name, sort_order, is_active")
+      .single();
+
+    if (error) {
+      if (error.code === "23505") {
+        throw new ConflictError("A category with this slug already exists for this brand.");
+      }
+      throw error;
+    }
+
+    return ok(data, { status: 201 });
+  },
+);
