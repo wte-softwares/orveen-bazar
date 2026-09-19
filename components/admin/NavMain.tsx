@@ -17,6 +17,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { BRANDS } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
@@ -37,6 +38,7 @@ export function NavMain({ isPlatformAdmin = true }: { isPlatformAdmin?: boolean 
   const pathname = usePathname();
   const params = useParams<{ org?: string }>();
   const t = useTranslations("admin");
+  const { setOpenMobile } = useSidebar();
   const org = params.org ?? BRANDS[0].slug;
 
   const isShared =
@@ -62,7 +64,7 @@ export function NavMain({ isPlatformAdmin = true }: { isPlatformAdmin?: boolean 
                 <SidebarMenuButton
                   tooltip={item.title}
                   isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
-                  render={<Link href={item.url} />}
+                  render={<Link href={item.url} onClick={() => setOpenMobile(false)} />}
                 >
                   <item.icon />
                   <span>{item.title}</span>
@@ -81,7 +83,7 @@ export function NavMain({ isPlatformAdmin = true }: { isPlatformAdmin?: boolean 
                   <SidebarMenuButton
                     tooltip={item.title}
                     isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
-                    render={<Link href={item.url} />}
+                    render={<Link href={item.url} onClick={() => setOpenMobile(false)} />}
                   >
                     <item.icon />
                     <span>{item.title}</span>
@@ -112,7 +114,7 @@ export function NavMain({ isPlatformAdmin = true }: { isPlatformAdmin?: boolean 
             <SidebarMenuButton
               tooltip={item.title}
               isActive={pathname === item.url || (item.url !== "/admin" && pathname.startsWith(`${item.url}/`))}
-              render={<Link href={item.url} />}
+              render={<Link href={item.url} onClick={() => setOpenMobile(false)} />}
             >
               <item.icon />
               <span>{item.title}</span>

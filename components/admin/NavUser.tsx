@@ -19,6 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
 
@@ -39,8 +40,10 @@ function initials(name: string) {
 export function NavUser({ user }: { user: AdminUser }) {
   const router = useRouter();
   const t = useTranslations("admin");
+  const { setOpenMobile } = useSidebar();
 
   async function handleLogout() {
+    setOpenMobile(false);
     await fetch("/api/v1/auth/logout", { method: "POST" });
     // Always the homepage, never /login — matches the same rule everywhere
     // else a user can sign out, regardless of whether they were an admin,
@@ -79,7 +82,7 @@ export function NavUser({ user }: { user: AdminUser }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem render={<a href="/account" />}>
+              <DropdownMenuItem render={<a href="/account" onClick={() => setOpenMobile(false)} />}>
                 <BadgeCheckIcon />
                 {t("account")}
               </DropdownMenuItem>

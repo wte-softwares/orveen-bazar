@@ -16,6 +16,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { BRANDS, getBrandConfig } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
@@ -29,6 +30,7 @@ export function OrgSwitcher() {
   const pathname = usePathname();
   const params = useParams<{ org?: string }>();
   const t = useTranslations("admin");
+  const { setOpenMobile } = useSidebar();
 
   const isShared =
     pathname.startsWith("/admin/users") ||
@@ -39,12 +41,14 @@ export function OrgSwitcher() {
   const activeBrand = getBrandConfig(currentSlug) ?? BRANDS[0];
 
   function switchToBrand(slug: string) {
+    setOpenMobile(false);
     if (!isShared && slug === currentSlug) return;
     const nextPath = params.org ? pathname.replace(`/${params.org}/`, `/${slug}/`) : `/admin/${slug}/items`;
     router.push(nextPath);
   }
 
   function switchToShared() {
+    setOpenMobile(false);
     if (isShared) return;
     router.push("/admin/banners");
   }
