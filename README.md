@@ -16,7 +16,7 @@ design. See `AGENTS.md` for the full list f architecture rules and
 - **Next.js** (App Router, TypeScript, no `src/` directory)
 - **Supabase** (Postgres, Auth, Storage) — local development runs entirely
   against the Supabase CLI's Docker stack
-- **Tailwind CSS** + **shadcn/ui** (full component set)
+- **Tailwind CSS** + **shadcn/ui** (full component set).
 - **Zod** for request validation
 - **Playwright** for end-to-end tests, plus direct database/RLS policy tests
 
