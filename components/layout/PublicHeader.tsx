@@ -101,6 +101,10 @@ export function PublicHeader() {
   useEffect(() => {
     const syncOfferState = () => setIsOfferActive(new URLSearchParams(window.location.search).get("offer") === "true");
     syncOfferState();
+    // Automatically close any open drawers or popovers on route change
+    setMobileNavOpen(false);
+    setIsCategoryMenuOpen(false);
+    setIsSearchFocused(false);
     window.addEventListener("popstate", syncOfferState);
     return () => window.removeEventListener("popstate", syncOfferState);
   }, [pathname]);
@@ -160,6 +164,7 @@ export function PublicHeader() {
     const trimmed = query.trim();
     router.push(trimmed ? `/catalog?q=${encodeURIComponent(trimmed)}` : "/catalog");
     setIsSearchFocused(false);
+    setMobileNavOpen(false);
   }
 
   function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
