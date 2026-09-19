@@ -17,20 +17,14 @@ import { Switch } from "@/components/ui/switch";
 import type { AdminCategoryItem } from "@/lib/queries/categories";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
 
+import { slugify } from "@/lib/utils";
+
 interface CategoryDialogProps {
   category: AdminCategoryItem | null;
   orgSlug: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (savedCategory: AdminCategoryItem) => void;
-}
-
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }
 
 interface CategoryFormProps {
@@ -56,7 +50,7 @@ function CategoryForm({ category, orgSlug, onSuccess, onCancel }: CategoryFormPr
   const handleNameChange = (val: string) => {
     setName(val);
     if (!slugManuallyEdited && !isEditing) {
-      setSlug(generateSlug(val));
+      setSlug(slugify(val));
     }
   };
 
@@ -157,7 +151,7 @@ function CategoryForm({ category, orgSlug, onSuccess, onCancel }: CategoryFormPr
               <button
                 type="button"
                 onClick={() => {
-                  setSlug(generateSlug(name));
+                  setSlug(slugify(name));
                   setSlugManuallyEdited(false);
                 }}
                 className="flex items-center gap-1 text-xs text-primary hover:underline"

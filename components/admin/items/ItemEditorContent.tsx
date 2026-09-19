@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { publicAssetUrl } from "@/lib/storage/public-url";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
+import { slugify } from "@/lib/utils";
 import type { AdminCatalogItemDetail } from "@/lib/queries/catalog";
 
 interface ItemEditorContentProps {
@@ -67,6 +68,7 @@ export function ItemEditorContent({
   // Form states
   const [title, setTitle] = useState(initialItem?.title ?? "");
   const [slug, setSlug] = useState(initialItem?.slug ?? "");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(initialItem));
   const [categoryId, setCategoryId] = useState(initialItem?.category_id ?? (categories[0]?.id || ""));
   const [type, setType] = useState<"product" | "service">(initialItem?.type ?? "product");
   const [description, setDescription] = useState(initialItem?.description ?? "");
@@ -110,15 +112,17 @@ export function ItemEditorContent({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-generate slug from title
+  // Auto-generate slug from title (handles Bangla transliteration and unicode characters)
   const generateSlug = () => {
-    const generated = title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    const generated = slugify(title);
     setSlug(generated);
+  };
+
+  const handleTitleChange = (val: string) => {
+    setTitle(val);
+    if (!slugManuallyEdited && !isEditing) {
+      setSlug(slugify(val));
+    }
   };
 
   // Image upload handler
@@ -153,7 +157,7 @@ export function ItemEditorContent({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           organizationId,
-          kind: "catalog-items",
+          kind: "items",
           ownerId: initialItem?.id ?? crypto.randomUUID(),
           fileName: file.name,
           fileSizeBytes: file.size,
@@ -161,9 +165,16 @@ export function ItemEditorContent({
         }),
       });
 
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(body.error?.message || "Failed to prepare image upload.");
+        let errorMsg = body.error?.message || "Failed to prepare image upload.";
+        if (body.error?.fields) {
+          const fieldDetails = Object.entries(body.error.fields)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(", ");
+          errorMsg += ` (${fieldDetails})`;
+        }
+        throw new Error(errorMsg);
       }
 
       const { signedUrl, path } = body.data;
@@ -324,9 +335,16 @@ export function ItemEditorContent({
         body: JSON.stringify(payload),
       });
 
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(body.error?.message || "Failed to save item.");
+        let errorMsg = body.error?.message || "Failed to save item.";
+        if (body.error?.fields) {
+          const fieldDetails = Object.entries(body.error.fields)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(", ");
+          errorMsg += ` (${fieldDetails})`;
+        }
+        throw new Error(errorMsg);
       }
 
       setSuccessMessage(
@@ -449,7 +467,7 @@ export function ItemEditorContent({
                     isHydrated ? t("itemTitlePlaceholder") : "e.g. Pure Mustard Oil 1L"
                   }
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => handleTitleChange(e.target.value)}
                   disabled={submitting}
                   required
                 />
@@ -478,7 +496,10 @@ export function ItemEditorContent({
                     isHydrated ? t("itemSlugPlaceholder") : "pure-mustard-oil-1l"
                   }
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={(e) => {
+                    setSlug(e.target.value);
+                    setSlugManuallyEdited(true);
+                  }}
                   disabled={submitting}
                   required
                 />
