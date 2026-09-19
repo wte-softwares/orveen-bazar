@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Baloo_Da_2, Anek_Bangla } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 import "./globals.css";
@@ -68,6 +69,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${headingFont.variable} ${bodyFont.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-body">
+        <NextTopLoader
+          color="#0057b8"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #0057b8,0 0 5px #0057b8"
+          zIndex={99999}
+        />
         <LocaleProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </LocaleProvider>

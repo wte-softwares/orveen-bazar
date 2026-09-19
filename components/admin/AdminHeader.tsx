@@ -21,6 +21,7 @@ const SECTION_BY_SEGMENT = {
   banners: "navBanners",
   settings: "navSettings",
   users: "navUsers",
+  testimonials: "navTestimonials",
 } as const;
 
 /** Top bar shared by every admin screen: sidebar toggle, a live breadcrumb, and the theme/language controls. */
@@ -28,6 +29,11 @@ export function AdminHeader() {
   const pathname = usePathname();
   const params = useParams<{ org?: string }>();
   const t = useTranslations("admin");
+
+  const isShared =
+    pathname.startsWith("/admin/users") ||
+    pathname.startsWith("/admin/banners") ||
+    pathname.startsWith("/admin/testimonials");
 
   const org = params.org ?? BRANDS[0].slug;
   const brand = getBrandConfig(org) ?? BRANDS[0];
@@ -42,7 +48,7 @@ export function AdminHeader() {
         <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>{brand.name}</BreadcrumbItem>
+            <BreadcrumbItem>{isShared ? t("sharedAppShort") : brand.name}</BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>{t(sectionKey)}</BreadcrumbPage>

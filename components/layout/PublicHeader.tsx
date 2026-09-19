@@ -102,6 +102,7 @@ export function PublicHeader() {
     const syncOfferState = () => setIsOfferActive(new URLSearchParams(window.location.search).get("offer") === "true");
     syncOfferState();
     // Automatically close any open drawers or popovers on route change
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileNavOpen(false);
     setIsCategoryMenuOpen(false);
     setIsSearchFocused(false);

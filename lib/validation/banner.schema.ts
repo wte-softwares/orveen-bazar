@@ -17,6 +17,7 @@ const safeTargetUrl = z
   );
 
 export const createBannerSchema = z.object({
+  organizationId: z.string().uuid("Invalid organization ID.").optional(),
   imagePath: z.string().min(1, "An image is required."),
   altText: z.string().trim().min(1, "Alt text is required for accessibility.").max(200),
   targetUrl: safeTargetUrl.nullable().optional(),
