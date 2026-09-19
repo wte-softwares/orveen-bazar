@@ -17,7 +17,7 @@ design. See `AGENTS.md` for the full list f architecture rules and
 - **Supabase** (Postgres, Auth, Storage) — local development runs entirely
   against the Supabase CLI's Docker stack
 - **Tailwind CSS** + **shadcn/ui** (full component set).
-- **Zod** for request validation
+- **Zod** for requesdft validation
 - **Playwright** for end-to-end tests, plus direct database/RLS policy tests
 
 All data mutations, and anything a future mobile app will need, go through
