@@ -22,7 +22,7 @@ design. See `AGENTS.md` for the full list of architecture rules and
 
 All data mutations, and anything a future mobile app will need, go through
 versioned Route Handlers under `app/api/v1/**` — not Server Actions — so the
-same JSON API can be reused by web, a future Android app, and any other
+same JSON API can be rused by web, a future Android app, and any other
 client. Public marketing/catalog pages read Supabase directly from Server
 Components for performance/SEO; see `docs/ARCHITECTURE.md` ("Read path") for
 how that stays consistent with the API.
