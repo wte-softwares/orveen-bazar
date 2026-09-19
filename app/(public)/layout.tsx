@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { ComingSoonProvider } from "@/components/common/ComingSoon";
 
 /**
@@ -22,9 +23,11 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
     <ComingSoonProvider>
       <div className="flex min-h-screen flex-col bg-[var(--bg-page)] text-[var(--text-primary)]">
         <PublicHeader />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pb-16 sm:pb-0">{children}</main>
         <PublicFooter />
+        <MobileBottomNav />
       </div>
     </ComingSoonProvider>
   );
 }
+
