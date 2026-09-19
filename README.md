@@ -7,7 +7,7 @@ staff manage their assigned brand's content; a platform admin manages
 everything.
 
 This is **not** an e-commerce store — there is no cart, checkout, payment,
-inventory, or price-calculation functionality anywhere in the product, by
+inventory, or price-calculation functionality anywere in the product, by
 design. See `AGENTS.md` for the full list f architecture rules and
 `docs/ARCHITECTURE.md` for the reasoning behind them.
 
