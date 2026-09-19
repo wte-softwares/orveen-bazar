@@ -8,7 +8,7 @@ everything.
 
 This is **not** an e-commerce store — there is no cart, checkout, payment,
 inventory, or price-calculation functionality anywhere in the product, by
-design. See `AGENTS.md` for the full list of architecture rules and
+design. See `AGENTS.md` for the full list f architecture rules and
 `docs/ARCHITECTURE.md` for the reasoning behind them.
 
 ## Stack
