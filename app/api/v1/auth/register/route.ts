@@ -12,7 +12,12 @@ export const POST = withApiHandler(async (request: Request) => {
     password: body.password,
     options: {
       data: { display_name: body.displayName },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      // Through /auth/callback, not straight to /login — the confirmation
+      // link carries a PKCE `?code=` that needs exchanging for a session
+      // server-side before the visitor is actually signed in (see that
+      // route); landing on /login unauthenticated would otherwise make them
+      // enter their password a second time right after confirming.
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirect=${encodeURIComponent("/login")}`,
     },
   });
 

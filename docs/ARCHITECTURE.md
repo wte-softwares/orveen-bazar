@@ -29,7 +29,7 @@ route has its own copy. The fix is structural, not a reminder to be careful:
 **all "list/find published content" query logic lives in `lib/queries/*.ts`**,
 and both the Server Component and the matching Route Handler call the same
 function. There is exactly one place that decides what "published and
-visible" means for catalog items, brands, etc. — RLS is the authorization
+visible" means for catalog items, etc. — RLS is the authorization
 boundary either way, and `lib/queries/*` is the single source of truth for
 the shaping/filtering logic layered on top of it.
 
@@ -69,9 +69,8 @@ Shared published-content read logic — see "Two client surfaces" above.
 ```
 lib/storage/   upload.ts | publish.ts
 ```
-See "Storage strategy" below — `publish.ts` in particular is one shared
-pipeline for items, banners, *and* org logos, not three near-duplicate
-implementations.
+See "Storage strategy" below — `publish.ts` is the shared pipeline for
+items and banners, rather than two near-duplicate implementations.
 
 ```
 lib/validation/   *.schema.ts
@@ -111,10 +110,19 @@ is where these live):
    where a now-private row's image is still fetchable by guessing its old
    public URL.
 
-Banners and organization logos go through the same pipeline as catalog
-items — one shared module, not a simpler-but-divergent second
-implementation, even though their screens don't have an explicit "draft"
-authoring state the way the item editor does.
+Banners go through the same pipeline as catalog items — one shared module,
+not a simpler-but-divergent second implementation, even though banners do
+not have an explicit "draft" authoring state the way the item editor does.
+
+## Static site identity
+
+The three brand names, descriptions, logos, public contact details, and
+social-link configuration live in `lib/site-config.ts`. They are versioned
+with the application and the supplied logo files live in `public/logo/`.
+The `organizations` table is only an operational registry (`id`, `slug`, and
+`is_active`) needed to scope catalog content and staff memberships. No API
+can mutate public brand identity; changing it is an intentional code review
+and deployment.
 
 ## Authorization model, in one paragraph
 

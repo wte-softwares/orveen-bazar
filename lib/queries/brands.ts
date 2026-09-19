@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
+import { BRANDS, getBrandConfig } from "@/lib/site-config";
 
 /**
  * Shared "active organizations" read logic — called by BOTH the family
@@ -13,17 +14,25 @@ import type { Database } from "@/types/database.types";
  * doesn't need to care.
  */
 
-const ORGANIZATION_COLUMNS = "id, slug, name, description, logo_path, contact_text";
+const ORGANIZATION_COLUMNS = "id, slug, is_active";
+
+function withBrandConfig<T extends { slug: string }>(organization: T) {
+  const brand = getBrandConfig(organization.slug);
+  if (!brand) throw new Error(`No static configuration exists for organization: ${organization.slug}`);
+  return { ...organization, ...brand };
+}
 
 export async function listActiveOrganizations(supabase: SupabaseClient<Database>) {
   const { data, error } = await supabase
     .from("organizations")
     .select(ORGANIZATION_COLUMNS)
     .eq("is_active", true)
-    .order("name", { ascending: true });
+    .in("slug", BRANDS.map((brand) => brand.slug));
 
   if (error) throw error;
-  return data;
+  return (data ?? [])
+    .map(withBrandConfig)
+    .sort((a, b) => BRANDS.findIndex((brand) => brand.slug === a.slug) - BRANDS.findIndex((brand) => brand.slug === b.slug));
 }
 
 export async function findActiveOrganizationBySlug(
@@ -38,7 +47,7 @@ export async function findActiveOrganizationBySlug(
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data ? withBrandConfig(data) : null;
 }
 
 /**

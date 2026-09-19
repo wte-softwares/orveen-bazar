@@ -14,26 +14,13 @@ const supabaseStorageHostname = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["*"],
   images: {
     remotePatterns: [
-      { protocol: "http", hostname: "127.0.0.1", port: "54521", pathname: "/storage/v1/object/public/**" },
-      ...(supabaseStorageHostname
-        ? [
-            {
-              protocol: "https" as const,
-              hostname: supabaseStorageHostname,
-              pathname: "/storage/v1/object/public/**",
-            },
-          ]
-        : []),
+      { protocol: "http", hostname: "**" },
+      { protocol: "https", hostname: "**" },
     ],
-    // Next 16 blocks image URLs that resolve to a private IP by default
-    // (an SSRF hardening measure) — 127.0.0.1 is exactly that, so local
-    // Supabase Storage needs this explicit opt-in. Safe here specifically
-    // because it's gated to development: production talks to the hosted
-    // project's real public hostname (the remotePattern above), never a
-    // private IP, so this flag has no effect there.
-    dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
+    dangerouslyAllowLocalIP: true,
   },
 };
 

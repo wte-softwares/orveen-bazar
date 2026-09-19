@@ -8,7 +8,4 @@
 export const DEFAULT_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 50;
 
-/** The three organizations this platform serves, keyed by their route slug. */
-export const ORGANIZATION_SLUGS = ["orveen-bazar", "eco-fast-bd", "reliable-multi-products"] as const;
-
-export type OrganizationSlug = (typeof ORGANIZATION_SLUGS)[number];
+export { ORGANIZATION_SLUGS, type OrganizationSlug } from "@/lib/site-config";

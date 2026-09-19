@@ -4,7 +4,7 @@ import { ok } from "@/lib/api/response";
 import { UnauthorizedError, withApiHandler } from "@/lib/api/errors";
 
 const WISHLIST_ITEM_COLUMNS =
-  "created_at, item:catalog_items(id, slug, title, price, compare_at_price, status, item_images(image_path, sort_order), organization:organizations(slug, name, is_active))";
+  "created_at, item:catalog_items(id, slug, title, price, compare_at_price, status, item_images(image_path, sort_order), organization:organizations(slug, is_active))";
 
 export const GET = withApiHandler(async (request: Request) => {
   const auth = await getAuthContext(request);

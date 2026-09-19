@@ -10,8 +10,9 @@ import { defineConfig, devices } from "@playwright/test";
  * seeded database (`npm run db:reset`) — see docs/SETUP.md.
  */
 export default defineConfig({
-  testDir: "./tests/e2e",
-  fullyParallel: true,
+  testDir: "./tests",
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: "html",

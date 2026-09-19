@@ -27,7 +27,7 @@ export const PATCH = withApiHandler(
       .update(updates)
       .eq("id", id)
       .eq("organization_id", organization.id)
-      .select("id, slug, name, sort_order, is_active")
+      .select("id, slug, name, sort_order, is_active, created_at, updated_at")
       .maybeSingle();
 
     if (error) {

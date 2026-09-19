@@ -73,7 +73,7 @@ have. Run these once after every `db:reset`, in order:
 
 ```bash
 npm run db:seed   # = db:seed:users (5 test accounts) + db:seed:assets
-                   # (brand logos + generated placeholder photos, uploaded
+                   # (generated placeholder photos, uploaded
                    # straight to org-public — see scripts/seed-assets.mjs)
 ```
 

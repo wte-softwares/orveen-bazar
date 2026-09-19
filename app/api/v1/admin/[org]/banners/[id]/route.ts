@@ -47,7 +47,7 @@ export const PATCH = withApiHandler(
       .from("banners")
       .update(updates)
       .eq("id", id)
-      .select("id, image_path, alt_text, target_url, sort_order, is_active")
+      .select("id, image_path, alt_text, target_url, sort_order, is_active, created_at, updated_at")
       .single();
 
     if (error) throw error;

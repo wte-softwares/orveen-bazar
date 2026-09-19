@@ -21,7 +21,7 @@ client-readable policies themselves.
 
 | Table | Anonymous read | Authenticated read | Write |
 |---|---|---|---|
-| `organizations` | rows where `is_active` | same, plus **all** rows for a platform admin | **platform admin only** — both `USING` and `WITH CHECK` |
+| `organizations` | rows where `is_active` | same, plus **all** rows for a platform admin | **platform admin only** — operational registry rows only |
 | `profiles` | none | owner only: `auth.uid() = user_id` | owner may `UPDATE` their own row only; `INSERT` happens exclusively via the `handle_new_user` trigger, never directly by a client |
 | `platform_admins` | none | none | **none, for any client role** — service-role only, via `/api/v1/admin/users` |
 | `memberships` | none | **own rows only**: `user_id = auth.uid()`, or all rows for a platform admin | platform admin only |
@@ -54,12 +54,10 @@ copy of the org/status data in sync. The one subtlety: on `UPDATE`, the
 item in another organization by changing `item_id` on an update, since the
 `USING` clause only validates the *old* row.
 
-**`organizations` writes are platform-admin-only, full stop** — not "staff
-of that org," even though staff manage most of that org's other content.
-The brand settings screen (`/admin/[org]/settings`) is the one place this
-matters in the UI: a staff member can view it but must get a 403 from both
-the Route Handler's own check (for a clean error) and RLS (as the backstop)
-if they try to submit it.
+**`organizations` is not a brand-settings store.** It is a small operational
+registry used for foreign keys, tenant isolation, and the `is_active` gate.
+Brand identity is static application configuration, so there is no settings
+write endpoint for a staff member or platform admin to call.
 
 **Forged organization IDs are handled twice, deliberately.**
 `lib/api/org-guard.ts` checks membership server-side before a Route Handler
@@ -100,9 +98,8 @@ per cell of the matrix above that isn't "none," plus explicitly:
 - A forged/typed-in organization ID on every `admin/[org]/**` write route,
   from a staff account that belongs to a *different* org — must fail both
   at the Route Handler (403) and if that check is bypassed, at the database.
-- A staff account attempting to write to `organizations` (brand settings) —
-  must fail even though they have a valid membership elsewhere in that org's
-  content.
+- A staff account attempting to write to `organizations` — must fail even
+  though they have a valid membership elsewhere in that org's content.
 - A customer or staff account attempting `POST /api/v1/admin/users` — must
   fail regardless of any other role they hold.
 - Removing a membership and immediately re-attempting an operation that

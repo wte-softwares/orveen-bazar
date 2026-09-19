@@ -5,7 +5,7 @@ import { ApiError } from "@/lib/api/errors";
 
 /**
  * The single shared publish/unpublish pipeline for catalog items, banners,
- * and organization logos alike — one implementation, not one per screen
+ * and banners alike — one implementation, not one per screen
  * (see docs/ARCHITECTURE.md, "Storage strategy").
  *
  * Uses the service-role client (lib/supabase/admin.ts) because moving an

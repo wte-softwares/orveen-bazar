@@ -4,7 +4,6 @@ import { ForbiddenError, NotFoundError } from "@/lib/api/errors";
 export interface OrganizationRow {
   id: string;
   slug: string;
-  name: string;
   is_active: boolean;
 }
 
@@ -30,7 +29,7 @@ export async function requireOrgAccess(
 ): Promise<OrganizationRow> {
   const { data: organization, error } = await auth.supabase
     .from("organizations")
-    .select("id, slug, name, is_active")
+    .select("id, slug, is_active")
     .eq("slug", orgSlug)
     .maybeSingle();
 
@@ -62,7 +61,7 @@ export async function requireOrgAccessById(
 ): Promise<OrganizationRow> {
   const { data: organization, error } = await auth.supabase
     .from("organizations")
-    .select("id, slug, name, is_active")
+    .select("id, slug, is_active")
     .eq("id", organizationId)
     .maybeSingle();
 
@@ -81,9 +80,8 @@ export async function requireOrgAccessById(
 }
 
 /**
- * Stricter variant for the one screen that's platform-admin-only even for
- * staff who otherwise manage this org's content: brand settings
- * (organizations table writes — see docs/RLS_POLICIES.md).
+ * Shared platform-wide authorization check for administration that must not
+ * be delegated to a staff membership (for example, managing user access).
  */
 export async function requirePlatformAdmin(auth: AuthContext): Promise<void> {
   if (!auth.isPlatformAdmin) {

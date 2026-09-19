@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { publicAssetUrl } from "@/lib/storage/public-url";
+import { Container } from "@/components/layout/Container";
+import { useTranslations } from "@/lib/i18n/LocaleProvider";
 
 export interface HeroBannerItem {
   id: string;
@@ -16,6 +18,7 @@ export interface HeroBannerItem {
 /** The family homepage's hero carousel — real "approved banners" content, not a stock photo (see docs/ARCHITECTURE.md). */
 export function HeroBanner({ banners }: { banners: HeroBannerItem[] }) {
   const [index, setIndex] = useState(0);
+  const t = useTranslations("hero");
 
   useEffect(() => {
     if (banners.length < 2) return;
@@ -32,46 +35,48 @@ export function HeroBanner({ banners }: { banners: HeroBannerItem[] }) {
       src={publicAssetUrl(banner.image_path)}
       alt={banner.alt_text}
       width={1600}
-      height={500}
+      height={600}
       priority
-      className="aspect-[16/5] w-full rounded-2xl object-cover"
+      className="aspect-[16/9] w-full object-cover md:aspect-[16/6]"
     />
   );
 
   return (
-    <div className="relative mx-auto max-w-(--container-max) px-[5vw] pt-4">
-      {banner.target_url ? <Link href={banner.target_url}>{image}</Link> : image}
+    <Container className="pt-4">
+      <div className="relative overflow-hidden rounded-2xl">
+        {banner.target_url ? <Link href={banner.target_url} className="block">{image}</Link> : image}
 
-      {banners.length > 1 ? (
-        <>
+        {banners.length > 1 ? (
+          <>
           <button
             type="button"
-            aria-label="Previous banner"
+            aria-label={t("previousBanner")}
             onClick={() => setIndex((i) => (i - 1 + banners.length) % banners.length)}
-            className="absolute top-1/2 left-[6vw] flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-[var(--shadow-sm)]"
+            className="absolute top-1/2 left-3 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-[var(--shadow-sm)]"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             type="button"
-            aria-label="Next banner"
+            aria-label={t("nextBanner")}
             onClick={() => setIndex((i) => (i + 1) % banners.length)}
-            className="absolute top-1/2 right-[6vw] flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-[var(--shadow-sm)]"
+            className="absolute top-1/2 right-3 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-[var(--shadow-sm)]"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
-          <div className="mt-3 flex justify-center gap-1.5">
+          <div className="absolute right-0 bottom-3 left-0 z-10 flex justify-center gap-1.5">
             {banners.map((b, i) => (
               <button
                 key={b.id}
-                aria-label={`Go to banner ${i + 1}`}
+                aria-label={`${t("goToBanner")} ${i + 1}`}
                 onClick={() => setIndex(i)}
-                className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-[var(--brand-primary)]" : "w-1.5 bg-[var(--border-strong)]"}`}
+                className={`h-1.5 rounded-full shadow-sm transition-all ${i === index ? "w-5 bg-white" : "w-1.5 bg-white/65 hover:bg-white"}`}
               />
             ))}
           </div>
-        </>
-      ) : null}
-    </div>
+          </>
+        ) : null}
+      </div>
+    </Container>
   );
 }

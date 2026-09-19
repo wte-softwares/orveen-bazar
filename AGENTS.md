@@ -14,7 +14,10 @@ that's a bug in the docs — flag it, don't silently pick one.
 ## What this project is
 
 A catalog + wishlist platform for three sibling brands (organizations):
-ORVEEN BAZAR.COM, ECO FAST BD, RELIABLE MULTI PRODUCTS. Visitors browse;
+ORVEEN BAZAR.COM, ECO FAST BD, RELIABLE MULTI PRODUCTS. Their public
+identity (names, descriptions, logos, contact details, and social links) is
+versioned static configuration in `lib/site-config.ts`, not database content.
+Visitors browse;
 customers save favourites; staff manage their assigned brand's content;
 a platform admin manages everything.
 
@@ -86,7 +89,8 @@ disabled button here is a deliberate scope boundary, not a TODO.
    an RLS-scoped query instead — the admin client bypasses RLS entirely.
 6. **Draft media must never be publicly reachable before publish.** Uploads
    land in the private `org-drafts` bucket; `lib/storage/publish.ts` copies
-   to the public `org-public` bucket only when the owning row is published,
+   to the public `org-public` bucket only when the owning item or banner is
+   published,
    and scrubs the public copy the moment it's unpublished/archived, in the
    same request. Don't build a second, simpler upload path that skips this.
 7. **No giant single-file modules.** If a Route Handler's logic grows past
@@ -159,3 +163,13 @@ the standard `http://127.0.0.1:54321` URL — it's `54521` here.
 `npm run build && npm run typecheck && npm run lint` must all pass. Once
 Phase 2 tests exist, `npm run test:e2e` and the RLS policy test suite must
 pass too, and `supabase db reset` must apply every migration + seed cleanly.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

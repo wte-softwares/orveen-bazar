@@ -18,16 +18,10 @@
 -- API/Admin client, which plain SQL doesn't have. Run both after this file
 -- applies: `npm run db:seed:users && npm run db:seed:assets`.
 
-insert into public.organizations (id, slug, name, description, contact_text, is_active) values
-  ('11111111-1111-4111-a111-111111111111', 'orveen-bazar', 'ORVEEN BAZAR.COM',
-   'Everyday FMCG staples — oil, rice, lentils, spices, and household essentials.',
-   'orveenbazzar@gmail.com · WhatsApp +8801335189426', true),
-  ('22222222-2222-4222-a222-222222222222', 'eco-fast-bd', 'ECO FAST BD',
-   'Eco-friendly cleaning and household products.',
-   'contact@ecofastbd.example', true),
-  ('33333333-3333-4333-a333-333333333333', 'reliable-multi-products', 'RELIABLE MULTI PRODUCTS',
-   'General trading and multi-category consumer goods.',
-   'contact@reliablemultiproducts.example', true);
+insert into public.organizations (id, slug, is_active) values
+  ('11111111-1111-4111-a111-111111111111', 'orveen-bazar', true),
+  ('22222222-2222-4222-a222-222222222222', 'eco-fast-bd', true),
+  ('33333333-3333-4333-a333-333333333333', 'reliable-multi-products', true);
 
 -- --------------------------------------------------------------- categories
 insert into public.categories (id, organization_id, name, slug, sort_order) values
@@ -97,7 +91,29 @@ insert into public.banners (id, organization_id, image_path, alt_text, target_ur
   ('b3333333-0001-4000-a000-000000000001', '33333333-3333-4333-a333-333333333333', '33333333-3333-4333-a333-333333333333/banners/b3333333-0001-4000-a000-000000000001/cover.jpg', 'RELIABLE MULTI PRODUCTS home essentials banner', '/brands/reliable-multi-products', 1, true),
   ('b3333333-0002-4000-a000-000000000002', '33333333-3333-4333-a333-333333333333', '33333333-3333-4333-a333-333333333333/banners/b3333333-0002-4000-a000-000000000002/cover.jpg', 'RELIABLE MULTI PRODUCTS stationery banner', '/catalog?org=reliable-multi-products', 2, true);
 
--- Logos, banner images, and item cover photos referenced above are placed
+-- Banner images and item cover photos referenced above are placed
 -- into Storage by `npm run db:seed:assets` (scripts/seed-assets.mjs) after
 -- this file applies — plain SQL can't write to Storage, so the rows above
 -- describe where those objects belong, not their pixels.
+
+-- ------------------------------------------------------------ testimonials
+-- Platform-wide, not organization-scoped — see
+-- supabase/migrations/20260101000018_testimonials.sql. Content matches what
+-- was previously hardcoded in components/home/Testimonials.tsx.
+insert into public.testimonials (id, quote_bn, quote_en, name_bn, name_en, city_bn, city_en, avatar_path, sort_order, is_active) values
+  ('e1111111-0001-4000-a000-000000000001',
+   'পণ্যের মান খুব ভালো এবং ডেলিভারি খুব দ্রুত। নিয়মিত এখান থেকেই কিনি।',
+   'The product quality is excellent and delivery is very fast. I shop here regularly.',
+   'রাকিব আহমেদ', 'Rakib Ahmed', 'ঢাকা', 'Dhaka', '/testimonials/rakib-ahmed.png', 1, true),
+  ('e1111111-0002-4000-a000-000000000002',
+   'বিশ্বস্ত ও নির্ভরযোগ্য একটি অনলাইন শপ। পরিবারের জন্য দরকারি পণ্য এক জায়গায় পাই।',
+   'A trusted and reliable online shop. I find everything my family needs in one place.',
+   'নুসরাত জাহান', 'Nusrat Jahan', 'চট্টগ্রাম', 'Chattogram', '/testimonials/nusrat-jahan.png', 2, true),
+  ('e1111111-0003-4000-a000-000000000003',
+   'পণ্যের মান ও প্যাকেজিং দুটোই চমৎকার। সত্যিই ভালো লেগেছে।',
+   'Both the product quality and packaging are excellent. I really liked it.',
+   'তানভীর হাসান', 'Tanvir Hasan', 'খুলনা', 'Khulna', '/testimonials/tanvir-hasan.png', 3, true),
+  ('e1111111-0004-4000-a000-000000000004',
+   'প্রকৃতিবান্ধব পণ্য পেয়ে আমি খুব খুশি। Eco Fast BD এর উদ্যোগটি খুবই প্রশংসনীয়।',
+   'I''m very happy to find eco-friendly products. Eco Fast BD''s initiative is truly commendable.',
+   'সামিয়া রহমান', 'Samia Rahman', 'রাজশাহী', 'Rajshahi', '/testimonials/samia-rahman.png', 4, true);

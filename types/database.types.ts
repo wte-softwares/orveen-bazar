@@ -283,35 +283,23 @@ export type Database = {
       }
       organizations: {
         Row: {
-          contact_text: string | null
           created_at: string
-          description: string | null
           id: string
           is_active: boolean
-          logo_path: string | null
-          name: string
           slug: string
           updated_at: string
         }
         Insert: {
-          contact_text?: string | null
           created_at?: string
-          description?: string | null
           id?: string
           is_active?: boolean
-          logo_path?: string | null
-          name: string
           slug: string
           updated_at?: string
         }
         Update: {
-          contact_text?: string | null
           created_at?: string
-          description?: string | null
           id?: string
           is_active?: boolean
-          logo_path?: string | null
-          name?: string
           slug?: string
           updated_at?: string
         }
@@ -350,6 +338,51 @@ export type Database = {
           display_name?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          avatar_path: string
+          city_bn: string
+          city_en: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_bn: string
+          name_en: string
+          quote_bn: string
+          quote_en: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          avatar_path: string
+          city_bn: string
+          city_en: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_bn: string
+          name_en: string
+          quote_bn: string
+          quote_en: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar_path?: string
+          city_bn?: string
+          city_en?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_bn?: string
+          name_en?: string
+          quote_bn?: string
+          quote_en?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }

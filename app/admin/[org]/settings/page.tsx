@@ -1,20 +1,59 @@
-import { ScreenPlaceholder } from "@/components/layout/ScreenPlaceholder";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getBrandConfig } from "@/lib/site-config";
+import { listOrgStaffMembers } from "@/lib/queries/admin";
+import { BrandSettingsContent } from "@/components/admin/settings/BrandSettingsContent";
 
-// Logo, brand name, introduction, contact text. ADMIN-ONLY writes per the
-// brief — staff with a membership in :org can still view this screen but
-// must not be able to submit changes; enforce both server-side (Phase 2)
-// and by disabling the form for non-admins in the UI.
 export default async function AdminSettingsPage({
   params,
 }: {
   params: Promise<{ org: string }>;
 }) {
   const { org } = await params;
+  const brand = getBrandConfig(org);
+  if (!brand) {
+    redirect("/admin");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/login?redirect=/admin/${org}/settings`);
+  }
+
+  // Security gate: Verify access to this specific organization (Platform Admin OR staff membership)
+  const [{ data: isAdmin }, { data: organization }] = await Promise.all([
+    supabase.rpc("is_platform_admin", { uid: user.id }),
+    supabase.from("organizations").select("id, slug, is_active, created_at").eq("slug", org).maybeSingle(),
+  ]);
+
+  if (!organization) {
+    redirect("/admin");
+  }
+
+  if (!isAdmin) {
+    const { data: membership } = await supabase
+      .from("memberships")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("organization_id", organization.id)
+      .maybeSingle();
+
+    if (!membership) {
+      redirect("/admin");
+    }
+  }
+
+  const staffMembers = await listOrgStaffMembers(organization.id);
+
   return (
-    <ScreenPlaceholder
-      title={`Brand settings — ${org}`}
-      route="/admin/[org]/settings"
-      description="Logo, brand name, introduction, contact text — admin-only writes."
+    <BrandSettingsContent
+      brand={brand}
+      organization={organization}
+      staffMembers={staffMembers}
     />
   );
 }

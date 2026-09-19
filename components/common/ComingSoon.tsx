@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/lib/i18n/LocaleProvider";
 
 /**
  * Cart, checkout, and delivery/return-policy controls exist in the visual
@@ -29,6 +30,7 @@ const ComingSoonContext = createContext<ComingSoonContextValue | null>(null);
 export function ComingSoonProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState<string | undefined>();
+  const t = useTranslations("comingSoon");
 
   const trigger = useCallback((featureLabel?: string) => {
     setLabel(featureLabel);
@@ -43,14 +45,11 @@ export function ComingSoonProvider({ children }: { children: ReactNode }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Coming soon</DialogTitle>
-            <DialogDescription>
-              {label ? `${label} isn’t available yet.` : "This isn’t available yet."} We&rsquo;re
-              working on it — please check back soon.
-            </DialogDescription>
+            <DialogTitle>{t("title")}</DialogTitle>
+            <DialogDescription>{label ? `${label} — ${t("body")}` : t("body")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setOpen(false)}>Got it</Button>
+            <Button onClick={() => setOpen(false)}>{t("close")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

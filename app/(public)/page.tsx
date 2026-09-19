@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { listActiveOrganizations, listActiveBanners } from "@/lib/queries/brands";
 import { listPublishedCatalogItems } from "@/lib/queries/catalog";
+import { listActiveTestimonials } from "@/lib/queries/testimonials";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { BrandCards } from "@/components/home/BrandCards";
 import { ProductSection } from "@/components/home/ProductSection";
@@ -14,9 +15,10 @@ import { Testimonials } from "@/components/home/Testimonials";
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [organizations, banners] = await Promise.all([
+  const [organizations, banners, testimonials] = await Promise.all([
     listActiveOrganizations(supabase),
     listActiveBanners(supabase),
+    listActiveTestimonials(supabase),
   ]);
 
   const productSections = await Promise.all(
@@ -40,12 +42,12 @@ export default async function HomePage() {
           key={org.slug}
           orgSlug={org.slug}
           orgName={org.name}
-          tagline={org.description ?? ""}
+          tagline={org.description}
           items={items}
         />
       ))}
 
-      <Testimonials />
+      <Testimonials testimonials={testimonials} />
     </div>
   );
 }

@@ -14,12 +14,27 @@ export const GET = withApiHandler(
 
     const { data, error } = await auth.supabase
       .from("categories")
-      .select("id, slug, name, sort_order, is_active")
+      .select("id, slug, name, sort_order, is_active, created_at, updated_at, catalog_items(count)")
       .eq("organization_id", organization.id)
       .order("sort_order", { ascending: true });
 
     if (error) throw error;
-    return ok(data);
+
+    const formatted = (data ?? []).map((row) => {
+      const rawCount = row.catalog_items as unknown as Array<{ count: number }> | null;
+      return {
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        sort_order: row.sort_order,
+        is_active: row.is_active,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        item_count: rawCount?.[0]?.count ?? 0,
+      };
+    });
+
+    return ok(formatted);
   },
 );
 
@@ -41,7 +56,7 @@ export const POST = withApiHandler(
         sort_order: body.sortOrder,
         is_active: body.isActive,
       })
-      .select("id, slug, name, sort_order, is_active")
+      .select("id, slug, name, sort_order, is_active, created_at, updated_at")
       .single();
 
     if (error) {

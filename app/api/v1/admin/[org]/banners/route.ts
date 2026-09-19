@@ -16,7 +16,7 @@ export const GET = withApiHandler(
 
     const { data, error } = await auth.supabase
       .from("banners")
-      .select("id, image_path, alt_text, target_url, sort_order, is_active")
+      .select("id, image_path, alt_text, target_url, sort_order, is_active, created_at, updated_at")
       .eq("organization_id", organization.id)
       .order("sort_order", { ascending: true });
 
@@ -53,7 +53,7 @@ export const POST = withApiHandler(
         sort_order: body.sortOrder,
         is_active: body.isActive,
       })
-      .select("id, image_path, alt_text, target_url, sort_order, is_active")
+      .select("id, image_path, alt_text, target_url, sort_order, is_active, created_at, updated_at")
       .single();
 
     if (error) throw error;

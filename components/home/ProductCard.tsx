@@ -4,15 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Eye, Heart, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { publicAssetUrl } from "@/lib/storage/public-url";
 import { useComingSoon } from "@/components/common/ComingSoon";
+import { getBrandConfig } from "@/lib/site-config";
+import { useTranslations } from "@/lib/i18n/LocaleProvider";
 
 export interface ProductCardItem {
   id: string;
   slug: string;
   title: string;
+  type: string;
   price: number;
   compare_at_price: number | null;
   organization: { slug: string };
@@ -29,11 +32,13 @@ export interface ProductCardItem {
 export function ProductCard({ item }: { item: ProductCardItem }) {
   const router = useRouter();
   const { trigger } = useComingSoon();
+  const t = useTranslations("productCard");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const cover = item.item_images[0];
   const href = `/brands/${item.organization.slug}/${item.slug}`;
+  const brand = getBrandConfig(item.organization.slug);
 
   async function handleSaveToWishlist() {
     if (saving) return;
@@ -55,58 +60,80 @@ export function ProductCard({ item }: { item: ProductCardItem }) {
   }
 
   return (
-    <div className="group relative flex flex-col gap-2.5 rounded-[var(--radius-lg,14px)] border border-[var(--border-default)] bg-[var(--bg-surface)] p-3.5 transition hover:shadow-[var(--shadow-md)]">
-      <button
-        type="button"
-        onClick={handleSaveToWishlist}
-        aria-label={saved ? "Saved to wishlist" : "Save to wishlist"}
-        aria-pressed={saved}
-        disabled={saving}
-        className="absolute top-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)]"
-      >
-        <Heart
-          className={cn("h-3.5 w-3.5", saved ? "fill-[var(--brand-secondary)] text-[var(--brand-secondary)]" : "text-[var(--text-secondary)]")}
-        />
-      </button>
-
-      <Link href={href} className="block overflow-hidden rounded-[10px] bg-[var(--bg-subtle)]">
+    <article className="group flex h-full flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 shadow-[var(--shadow-sm)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
+      <div className="relative overflow-hidden rounded-xl bg-[var(--color-warning-100)]">
+        <span className="absolute top-2.5 left-2.5 z-10 rounded-full bg-white/85 px-2 py-1 text-[10px] font-bold text-[var(--brand-primary)] shadow-sm">
+          {item.type === "service" ? t("typeService") : t("typeProduct")}
+        </span>
+        <div className="absolute top-2.5 right-2.5 z-10 flex flex-col gap-1.5">
+          <button
+            type="button"
+            onClick={handleSaveToWishlist}
+            aria-label={saved ? t("savedToWishlist") : t("saveToWishlist")}
+            aria-pressed={saved}
+            disabled={saving}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-default)] bg-white/90 shadow-sm transition hover:bg-white"
+          >
+            <Heart
+              className={cn("h-4 w-4", saved ? "fill-[var(--brand-secondary)] text-[var(--brand-secondary)]" : "text-[var(--text-secondary)]")}
+            />
+          </button>
+          <Link
+            href={href}
+            aria-label={`${t("viewItem")}: ${item.title}`}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-default)] bg-white/90 text-[var(--text-secondary)] shadow-sm transition hover:bg-white hover:text-[var(--brand-primary)]"
+          >
+            <Eye className="h-4 w-4" />
+          </Link>
+        </div>
+        <Link href={href} className="block">
         {cover ? (
           <Image
             src={publicAssetUrl(cover.image_path)}
             alt={cover.alt_text ?? item.title}
-            width={300}
-            height={300}
-            className="aspect-square w-full object-cover transition group-hover:scale-105"
+            width={480}
+            height={500}
+            className="aspect-[1/1.04] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex aspect-square w-full items-center justify-center text-xs text-[var(--text-muted)]">
-            No image
+          <div className="flex aspect-[1/1.04] w-full items-center justify-center text-xs text-[var(--text-muted)]">
+            {t("noImage")}
           </div>
         )}
-      </Link>
+        </Link>
+      </div>
 
-      <Link href={href} className="min-h-8.5 text-[13px] leading-tight font-semibold hover:underline">
+      <p className="mt-3 text-[10px] font-bold tracking-wide text-[var(--text-secondary)] uppercase">
+        {brand?.name ?? item.organization.slug}
+      </p>
+      <Link href={href} className="mt-1 min-h-10 text-sm leading-5 font-bold text-[var(--text-primary)] hover:text-[var(--brand-primary)] hover:underline">
         {item.title}
       </Link>
 
-      <div className="mt-0.5 flex items-center justify-between">
-        <span className="font-heading text-[15px] font-bold">
+      <div className="mt-2 flex items-baseline gap-2">
+        <span className="font-heading text-lg font-extrabold text-[var(--brand-primary)]">
           ৳ {item.price.toLocaleString("en-BD")}
-          {item.compare_at_price ? (
-            <span className="ml-1.5 text-xs font-normal text-[var(--text-muted)] line-through">
-              ৳ {item.compare_at_price.toLocaleString("en-BD")}
-            </span>
-          ) : null}
         </span>
+        {item.compare_at_price ? (
+          <span className="text-xs font-medium text-[var(--text-muted)] line-through">
+            ৳ {item.compare_at_price.toLocaleString("en-BD")}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
         <button
           type="button"
           onClick={() => trigger("Add to cart")}
           aria-label="Add to cart (coming soon)"
-          className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-[var(--brand-primary)] text-white transition hover:bg-[var(--brand-primary-hover)]"
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-primary)] px-2 text-xs font-bold text-white transition hover:bg-[var(--brand-primary-hover)]"
         >
-          <ShoppingCart className="h-3.5 w-3.5" />
+          <ShoppingCart className="h-3.5 w-3.5" /> {t("addToCart")}
         </button>
+        <Link href={href} className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-secondary)] px-2 text-xs font-bold text-[var(--brand-secondary)] transition hover:bg-[var(--color-secondary-50)]">
+          <Eye className="h-3.5 w-3.5" /> {t("details")}
+        </Link>
       </div>
-    </div>
+    </article>
   );
 }

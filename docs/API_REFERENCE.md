@@ -41,6 +41,11 @@ No body. `200 { signedOut: true }`.
 `200 { userId, email, displayName, isPlatformAdmin, membershipOrgIds }`.
 The bootstrap call a web page or a mobile client makes on launch.
 
+### `PATCH /auth/session` — Session or bearer required
+Body: `{ displayName }` (1–100 chars). `200 { userId, email, displayName }`.
+Allows an authenticated customer or staff member to update their profile display name.
+Email change is intentionally disallowed and handled only by admin credentials.
+
 ### `POST /auth/forgot-password` — Public
 Body: `{ email }`. Always `200 { message }`, regardless of whether the
 email is registered — this endpoint cannot be used to enumerate accounts.
@@ -53,8 +58,8 @@ after the user follows their emailed reset link. `200 { message }`, or
 ## Public catalog
 
 ### `GET /organizations` — Public
-`200 [{ id, slug, name, description, logo_path, contact_text }]` — active
-organizations only.
+`200 [{ id, slug, is_active, name, description, logoSrc }]` — active
+organizations only. The identity fields are static application configuration.
 
 ### `GET /organizations/[slug]` — Public
 Same shape, one organization. `404` if missing or inactive.
@@ -157,12 +162,9 @@ Deactivates (`is_active = false`) rather than deleting the row.
 ### `GET /admin/[org]/settings`
 Readable by any staff member of `:org` or a platform admin.
 
-### `PATCH /admin/[org]/settings`
-Body: `{ name?, description?, contactText?, logoPath? }`.
-**Platform admin only** — a staff member with a valid `:org` membership
-still gets `403` here, even though they can manage this org's items,
-categories, and banners. This is the one screen where organization
-membership isn't enough.
+There is no settings mutation endpoint. Brand identity, contact details, and
+social links are maintained in `lib/site-config.ts` and deployed with the
+application.
 
 ## Admin — platform-wide (platform admin only)
 
@@ -184,10 +186,10 @@ request — membership is checked live, never cached.
 ## Uploads
 
 ### `POST /uploads` — Session or bearer required, org access required
-Body: `{ organizationId, kind: "items"|"banners"|"logos", ownerId, fileName, contentType, fileSizeBytes }`.
+Body: `{ organizationId, kind: "items"|"banners", ownerId, fileName, contentType, fileSizeBytes }`.
 `200 { path, token, signedUrl }` — `PUT` the raw file bytes to `signedUrl`
 directly (not through this API) to complete the upload into the private
 `org-drafts` bucket. Only PNG/JPEG/WebP up to 5 MB are accepted. The
-returned `path` is what you then pass as `imagePath`/`logoPath` to the
-create/update endpoints above — uploading alone does not make anything
+returned `path` is what you then pass as `imagePath` to the create/update
+endpoints above — uploading alone does not make anything
 public; publishing happens through those endpoints.

@@ -1,6 +1,7 @@
 import { getAuthContext } from "@/lib/api/auth";
 import { ok } from "@/lib/api/response";
 import { UnauthorizedError, withApiHandler } from "@/lib/api/errors";
+import { updateProfileSchema } from "@/lib/validation/account.schema";
 
 // The bootstrap call a web page or a future Android client makes on launch
 // to check for an existing session — supports both the cookie session and a
@@ -21,5 +22,27 @@ export const GET = withApiHandler(async (request: Request) => {
     displayName: profile?.display_name ?? null,
     isPlatformAdmin: auth.isPlatformAdmin,
     membershipOrgIds: auth.membershipOrgIds,
+  });
+});
+
+export const PATCH = withApiHandler(async (request: Request) => {
+  const auth = await getAuthContext(request);
+  if (!auth) throw new UnauthorizedError();
+
+  const body = updateProfileSchema.parse(await request.json());
+
+  const { data: updatedProfile, error } = await auth.supabase
+    .from("profiles")
+    .update({ display_name: body.displayName })
+    .eq("user_id", auth.user.id)
+    .select("display_name")
+    .single();
+
+  if (error) throw error;
+
+  return ok({
+    userId: auth.user.id,
+    email: auth.user.email,
+    displayName: updatedProfile.display_name,
   });
 });

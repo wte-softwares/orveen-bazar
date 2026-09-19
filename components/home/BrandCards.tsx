@@ -1,65 +1,89 @@
+"use client";
+
+import { Container } from "@/components/layout/Container";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { publicAssetUrl } from "@/lib/storage/public-url";
+import { useLocale, useTranslations } from "@/lib/i18n/LocaleProvider";
+import { pickLocalized, type LocalizedText } from "@/lib/site-config";
 
 export interface BrandCardOrg {
   slug: string;
   name: string;
-  description: string | null;
-  logo_path: string | null;
+  description: LocalizedText;
+  logoSrc: string;
+  cardBackgroundSrc: string;
+  cardDescription: LocalizedText;
+  cardAccent: string;
 }
 
-const TAGLINES: Record<string, string> = {
-  "orveen-bazar": "Natural Choices, Better Life",
-  "eco-fast-bd": "Bringing Nature Closer, Faster",
-  "reliable-multi-products": "Trusted Products, Better Choice",
-};
+/** Client Component so the brand blurbs can switch language without a page reload. */
+export function BrandCards({
+  organizations,
+}: {
+  organizations: BrandCardOrg[];
+}) {
+  const { locale } = useLocale();
+  const t = useTranslations("brandCards");
 
-/** No interactivity — safe as a Server Component, rendered directly by the family homepage. */
-export function BrandCards({ organizations }: { organizations: BrandCardOrg[] }) {
   return (
-    <section id="brands" className="mx-auto max-w-(--container-max) px-[5vw] py-10">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <h2 className="font-heading text-xl font-bold">Our Brands</h2>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Three trusted brands under one roof, for every need in your family.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        {organizations.map((org) => (
-          <div
-            key={org.slug}
-            className="flex flex-col items-start gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-5"
-          >
-            {org.logo_path ? (
-              <Image
-                src={publicAssetUrl(org.logo_path)}
-                alt={`${org.name} logo`}
-                width={56}
-                height={56}
-                className="h-14 w-14 rounded-xl object-cover"
-              />
-            ) : null}
-            <div>
-              <p className="font-heading text-base font-bold">{org.name}</p>
-              <p className="text-xs font-medium text-[var(--brand-secondary)]">
-                {TAGLINES[org.slug] ?? ""}
-              </p>
-            </div>
-            <p className="text-sm text-[var(--text-secondary)]">{org.description}</p>
-            <Link
-              href={`/brands/${org.slug}`}
-              className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-primary)] hover:underline"
-            >
-              Browse <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+    <section id="brands">
+      <Container className="py-10">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-heading text-xl font-bold">{t("heading")}</h2>
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">{t("subheading")}</p>
           </div>
-        ))}
-      </div>
+          <Link
+            href="/catalog"
+            className="hidden shrink-0 items-center gap-1 rounded-lg border border-[var(--brand-primary)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-primary)] transition hover:bg-[var(--brand-primary)] hover:text-white sm:inline-flex"
+          >
+            {t("viewAll")} <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          {organizations.map((org) => (
+            <div
+              key={org.slug}
+              className="group relative min-h-64 overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[var(--shadow-sm)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+            >
+              <Image
+                src={org.cardBackgroundSrc}
+                alt=""
+                fill
+                sizes="(min-width: 640px) 33vw, 100vw"
+                className="object-cover transition duration-500 group-hover:scale-[1.03]"
+              />
+              <div className="relative z-10 flex h-full max-w-[70%] flex-col items-start p-5 sm:p-4 lg:p-5">
+                <Image
+                  src={org.logoSrc}
+                  alt={`${org.name} logo`}
+                  width={169}
+                  height={104}
+                  className="h-20 w-auto max-w-full object-contain object-left"
+                />
+                <p
+                  style={{ color: org.cardAccent }}
+                  className="mt-2 font-heading text-base font-extrabold tracking-tight"
+                >
+                  {org.name}
+                </p>
+                <p className="mt-2 text-sm leading-5 font-medium text-[var(--text-primary)]">
+                  {pickLocalized(org.cardDescription, locale)}
+                </p>
+                <Link
+                  href={`/brands/${org.slug}`}
+                  style={{ backgroundColor: org.cardAccent }}
+                  className="mt-auto inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]"
+                >
+                  {t("viewBrand")} <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Container>
     </section>
   );
 }

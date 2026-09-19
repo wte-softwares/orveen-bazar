@@ -1,6 +1,5 @@
-// Generates and uploads placeholder imagery for local development: brand
-// logos (real assets from the client's design), plus generated banner and
-// product cover photos for every row supabase/seed.sql already created.
+// Generates and uploads placeholder banner and product imagery for local
+// development. Brand logos are versioned static files under public/logo.
 //
 // This writes directly to the PUBLIC `org-public` bucket via the
 // service-role client, skipping the normal draft -> publish pipeline
@@ -16,12 +15,6 @@
 
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const secretKey = process.env.SUPABASE_SECRET_KEY;
 if (!supabaseUrl || !secretKey) {
@@ -37,9 +30,9 @@ const admin = createClient(supabaseUrl, secretKey, {
 });
 
 const BRANDS = {
-  "11111111-1111-4111-a111-111111111111": { slug: "orveen-bazar", color: "#0057B8", soft: "#eef6ff", logo: "orveen-bazar.jpg" },
-  "22222222-2222-4222-a222-222222222222": { slug: "eco-fast-bd", color: "#0EA5A5", soft: "#e8fafa", logo: "eco-fast-bd.jpg" },
-  "33333333-3333-4333-a333-333333333333": { slug: "reliable-multi-products", color: "#1F9D55", soft: "#eafbf0", logo: "reliable-multi-products.jpg" },
+  "11111111-1111-4111-a111-111111111111": { slug: "orveen-bazar", color: "#0057B8" },
+  "22222222-2222-4222-a222-222222222222": { slug: "eco-fast-bd", color: "#0EA5A5" },
+  "33333333-3333-4333-a333-333333333333": { slug: "reliable-multi-products", color: "#1F9D55" },
 };
 
 async function uploadPublic(objectPath, buffer, contentType) {
@@ -71,22 +64,7 @@ function placeholderSvg({ width, height, color, label, sub }) {
 }
 
 async function main() {
-  // ---- 1. Real brand logos (client-provided design assets) ----
-  for (const [orgId, brand] of Object.entries(BRANDS)) {
-    const filePath = path.join(here, "seed-assets", "logos", brand.logo);
-    const bytes = await readFile(filePath);
-    const objectPath = `${orgId}/logos/logo/cover.jpg`;
-    await uploadPublic(objectPath, bytes, "image/jpeg");
-
-    const { error } = await admin
-      .from("organizations")
-      .update({ logo_path: objectPath })
-      .eq("id", orgId);
-    if (error) throw error;
-    console.log(`  logo: ${brand.slug}`);
-  }
-
-  // ---- 2. Banners (generated placeholders) ----
+  // ---- 1. Banners (generated placeholders) ----
   const { data: banners, error: bannersError } = await admin
     .from("banners")
     .select("id, organization_id, image_path, alt_text");
@@ -106,7 +84,7 @@ async function main() {
   }
   console.log(`  banners: ${banners?.length ?? 0}`);
 
-  // ---- 3. Product cover images (generated placeholders) ----
+  // ---- 2. Product cover images (generated placeholders) ----
   const { data: items, error: itemsError } = await admin
     .from("catalog_items")
     .select("id, organization_id, title, item_images(image_path)");

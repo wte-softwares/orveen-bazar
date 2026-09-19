@@ -6,7 +6,7 @@ import { ApiError } from "@/lib/api/errors";
 const ALLOWED_MIME_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MiB — matches the buckets' file_size_limit.
 
-export type DraftAssetKind = "items" | "banners" | "logos";
+export type DraftAssetKind = "items" | "banners";
 
 /**
  * Builds the object path every draft/publish operation for one asset agrees

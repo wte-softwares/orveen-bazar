@@ -1,5 +1,5 @@
 -- Org-scoped staff assignments. A membership row is what lets a user manage
--- one organization's items/categories/banners (but never its brand settings
+-- one organization's items/categories/banners (but never the operational
 -- or user list — those are platform-admin only, see RLS policies).
 create table public.memberships (
   id uuid primary key default gen_random_uuid(),

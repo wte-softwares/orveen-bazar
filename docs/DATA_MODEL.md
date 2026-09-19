@@ -24,21 +24,19 @@ erDiagram
 
 ### `organizations`
 
-The three brands. Everything else in the system is scoped to one of these.
+Operational registry for the three fixed brands. Everything else in the
+system is scoped to one of these. Public names, descriptions, logos, contact
+details, and social links are static configuration in `lib/site-config.ts`.
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid` pk | `default gen_random_uuid()` |
 | `slug` | `text` | unique, url-safe |
-| `name` | `text` | |
-| `description` | `text` | nullable |
-| `logo_path` | `text` | nullable — path in the `org-public` bucket |
-| `contact_text` | `text` | nullable |
 | `is_active` | `boolean` | `default true` — gates ALL public visibility of the org's content, not just the org itself |
 | `created_at`, `updated_at` | `timestamptz` | |
 
-Writes: platform admin only, even for staff otherwise managing this org's
-content (the brief calls this out explicitly for the settings screen).
+Writes: platform admin only. The three registry rows are seeded and public
+identity is not editable through the application.
 
 ### `profiles`
 

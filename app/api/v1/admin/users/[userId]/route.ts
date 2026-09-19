@@ -2,7 +2,7 @@ import { getAuthContext } from "@/lib/api/auth";
 import { requirePlatformAdmin } from "@/lib/api/org-guard";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ok } from "@/lib/api/response";
-import { NotFoundError, UnauthorizedError, withApiHandler } from "@/lib/api/errors";
+import { ApiError, NotFoundError, UnauthorizedError, withApiHandler } from "@/lib/api/errors";
 
 // ?organizationId=<uuid> revokes that one org membership; omitted revokes
 // platform-admin status. Two different grants, two different targets — a
@@ -33,6 +33,20 @@ export const DELETE = withApiHandler(
       if (error) throw error;
       if (!count) throw new NotFoundError("Membership not found.");
       return ok({ revoked: "membership" });
+    }
+
+    // Safety guard: prevent removing the sole platform admin to avoid total lockout
+    const { count: adminCount, error: countError } = await admin
+      .from("platform_admins")
+      .select("*", { count: "exact", head: true });
+    if (countError) throw countError;
+
+    if ((adminCount ?? 0) <= 1) {
+      throw new ApiError(
+        400,
+        "cannot_revoke_sole_admin",
+        "Cannot revoke platform admin status from the only remaining platform administrator.",
+      );
     }
 
     const { error, count } = await admin

@@ -13,7 +13,7 @@ create table public.item_images (
   -- Path in the (private) org-drafts bucket while the item is a draft,
   -- copied into the public org-public bucket by lib/storage/publish.ts when
   -- the item is published — same pipeline as the single-image tables
-  -- (banners, organization logos), just looped over each row here.
+  -- (banners), just looped over each row here.
   image_path text not null,
   alt_text text,
   sort_order integer not null default 0,
