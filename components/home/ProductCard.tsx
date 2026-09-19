@@ -128,10 +128,16 @@ export function ProductCard({ item }: { item: ProductCardItem }) {
           aria-label="Add to cart (coming soon)"
           className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[var(--brand-primary)] px-2 text-xs font-bold text-white transition hover:bg-[var(--brand-primary-hover)]"
         >
-          <ShoppingCart className="h-3.5 w-3.5" /> {t("addToCart")}
+          <ShoppingCart className="h-4 w-4 shrink-0 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden sm:inline">{t("addToCart")}</span>
         </button>
-        <Link href={href} className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-secondary)] px-2 text-xs font-bold text-[var(--brand-secondary)] transition hover:bg-[var(--color-secondary-50)]">
-          <Eye className="h-3.5 w-3.5" /> {t("details")}
+        <Link
+          href={href}
+          aria-label={`${t("details")}: ${item.title}`}
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[var(--brand-secondary)] px-2 text-xs font-bold text-[var(--brand-secondary)] transition hover:bg-[var(--color-secondary-50)]"
+        >
+          <Eye className="h-4 w-4 shrink-0 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden sm:inline">{t("details")}</span>
         </Link>
       </div>
     </article>

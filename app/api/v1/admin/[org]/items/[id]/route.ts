@@ -81,9 +81,10 @@ export const PATCH = withApiHandler(
     // in this same request. See lib/storage/publish.ts.
     const isPublishing = body.status === "published" && existing.status !== "published";
     const isUnpublishing = body.status && body.status !== "published" && existing.status === "published";
-    const adminClient = isPublishing || isUnpublishing ? createAdminClient() : null;
+    const currentOrNewStatus = body.status ?? existing.status;
+    const adminClient = isPublishing || isUnpublishing || (currentOrNewStatus === "published" && body.images !== undefined) ? createAdminClient() : null;
 
-    if (isPublishing && adminClient) {
+    if (adminClient && (isPublishing || (currentOrNewStatus === "published" && body.images !== undefined))) {
       for (const imagePath of nextImagePaths) {
         await publishDraftAsset(adminClient, imagePath);
       }

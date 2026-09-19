@@ -213,7 +213,7 @@ export function PublicHeader() {
       </div>
 
       <header className="sticky top-0 z-30 border-b border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[var(--shadow-sm)]">
-        <Container className="flex min-h-[68px] items-center gap-3 py-2 md:grid md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-6">
+        <Container className="flex min-h-[68px] items-center justify-between gap-3 py-2 md:grid md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-6">
           <Link href="/" className="flex shrink-0 items-center" aria-label="ORVEEN BAZAR.COM home">
             <Image
               src={PRIMARY_BRAND_LOGO_SRC}
@@ -324,12 +324,12 @@ export function PublicHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="sm:hidden"
+            className="ml-auto sm:hidden text-[var(--text-primary)] hover:bg-[var(--color-primary-50)]"
             onClick={() => setMobileNavOpen((open) => !open)}
             aria-label={mobileNavOpen ? t("closeNav") : t("openNav")}
             aria-expanded={mobileNavOpen}
           >
-            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileNavOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </Container>
       </header>
@@ -386,25 +386,73 @@ export function PublicHeader() {
         </Container>
       </nav>
 
-      {mobileNavOpen ? (
-        <nav aria-label="Mobile navigation" className="border-t border-[var(--border-default)] bg-[var(--bg-surface)] px-[var(--container-pad)] py-3 md:hidden">
+      {/* Mobile Top Drawer & Backdrop */}
+      <div
+        className={cn(
+          "fixed inset-0 z-20 bg-black/40 backdrop-blur-xs transition-opacity duration-300 md:hidden",
+          mobileNavOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setMobileNavOpen(false)}
+        aria-hidden="true"
+      />
+      <div
+        className={cn(
+          "fixed inset-x-0 top-[68px] z-25 max-h-[calc(100vh-68px)] overflow-y-auto border-b border-[var(--border-default)] bg-[var(--bg-surface)] px-[var(--container-pad)] py-4 shadow-xl transition-all duration-300 ease-out md:hidden",
+          mobileNavOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"
+        )}
+      >
+        <nav aria-label="Mobile navigation">
           <form onSubmit={handleSearch} role="search" className="mb-3 flex">
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("searchPlaceholder")} aria-label="Search products" className="h-10 rounded-r-none border-r-0" />
-            <Button type="submit" size="icon" className="h-10 w-11 rounded-l-none bg-[var(--brand-secondary)] hover:bg-[var(--brand-secondary-hover)]" aria-label="Search"><Search className="h-4 w-4" /></Button>
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              aria-label="Search products"
+              className="h-10 rounded-r-none border-r-0 bg-[var(--color-neutral-100)]"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="h-10 w-11 rounded-l-none bg-[var(--brand-secondary)] hover:bg-[var(--brand-secondary-hover)]"
+              aria-label="Search"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
           </form>
           <div className="mb-3">
             <LanguageSwitcher compact />
           </div>
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-cols-2 gap-1.5">
             {navLinks.map((link) => (
-              <Link key={link.key} href={link.href} onClick={() => { setIsOfferActive(link.key === "offers"); setMobileNavOpen(false); }} className={`rounded-md px-3 py-2.5 text-sm font-semibold hover:bg-[var(--color-primary-50)] hover:text-[var(--brand-primary)] ${link.isActive ? "bg-[var(--color-primary-50)] text-[var(--brand-primary)]" : "text-[var(--text-primary)]"}`}>
+              <Link
+                key={link.key}
+                href={link.href}
+                onClick={() => {
+                  setIsOfferActive(link.key === "offers");
+                  setMobileNavOpen(false);
+                }}
+                className={`rounded-md px-3 py-2.5 text-sm font-semibold transition hover:bg-[var(--color-primary-50)] hover:text-[var(--brand-primary)] ${
+                  link.isActive
+                    ? "bg-[var(--color-primary-50)] text-[var(--brand-primary)]"
+                    : "text-[var(--text-primary)]"
+                }`}
+              >
                 {link.label}
               </Link>
             ))}
-            <button type="button" onClick={() => trigger("Contact page")} className="rounded-md px-3 py-2.5 text-left text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--color-primary-50)] hover:text-[var(--brand-primary)]">{t("navContact")}</button>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileNavOpen(false);
+                trigger("Contact page");
+              }}
+              className="rounded-md px-3 py-2.5 text-left text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--color-primary-50)] hover:text-[var(--brand-primary)]"
+            >
+              {t("navContact")}
+            </button>
           </div>
         </nav>
-      ) : null}
+      </div>
     </>
   );
 }
