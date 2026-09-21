@@ -327,16 +327,20 @@ export function PublicHeader() {
             )}
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto sm:hidden text-[var(--text-primary)] hover:bg-[var(--color-primary-50)]"
-            onClick={() => setMobileNavOpen((open) => !open)}
-            aria-label={mobileNavOpen ? t("closeNav") : t("openNav")}
-            aria-expanded={mobileNavOpen}
-          >
-            {mobileNavOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
+          {/* Language toggle stays in the bar on mobile so it's always reachable without opening the drawer. */}
+          <div className="ml-auto flex items-center gap-1 sm:hidden">
+            <LanguageSwitcher compact />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-[var(--text-primary)] hover:bg-[var(--color-primary-50)]"
+              onClick={() => setMobileNavOpen((open) => !open)}
+              aria-label={mobileNavOpen ? t("closeNav") : t("openNav")}
+              aria-expanded={mobileNavOpen}
+            >
+              {mobileNavOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </Container>
       </header>
 
@@ -425,9 +429,6 @@ export function PublicHeader() {
               <Search className="h-4 w-4" />
             </Button>
           </form>
-          <div className="mb-3">
-            <LanguageSwitcher compact />
-          </div>
           <div className="grid grid-cols-2 gap-1.5">
             {navLinks.map((link) => (
               <Link
