@@ -188,6 +188,42 @@ export function PublicHeader() {
     router.push(`/brands/${item.organization.slug}/${item.slug}`);
   }
 
+  // Shared by the desktop dropdown and the mobile drawer so both surfaces
+  // show the same realtime results from one fetch.
+  function renderSuggestionRows() {
+    return (
+          suggestions.length ? suggestions.map((item, idx) => {
+            const cover = item.item_images[0];
+            const isSelected = activeSuggestionIndex === idx;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                onMouseEnter={() => setActiveSuggestionIndex(idx)}
+                onMouseDown={() => openSuggestion(item)}
+                className={cn(
+                  "flex w-full items-center gap-3 px-3 py-2 text-left transition",
+                  isSelected
+                    ? "bg-[var(--color-primary-50)] text-[var(--brand-primary)]"
+                    : "hover:bg-[var(--color-primary-50)]/60"
+                )}
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[var(--color-warning-100)]">
+                  {cover ? <Image src={publicAssetUrl(cover.image_path)} alt="" width={40} height={40} className="h-full w-full object-cover" /> : <Search className="h-4 w-4 text-[var(--text-muted)]" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">{item.title}</span>
+                  <span className="block text-xs text-[var(--text-secondary)]">{item.type === "service" ? t("typeService") : t("typeProduct")}</span>
+                </span>
+                <span className="shrink-0 text-sm font-bold text-[var(--brand-primary)]">৳{new Intl.NumberFormat("bn-BD").format(item.price)}</span>
+              </button>
+            );
+          }) : <p className="px-4 py-5 text-sm text-[var(--text-secondary)]">{t("suggestionsEmpty")}</p>
+    );
+  }
+
   const navLinks = [
     { href: "/", label: t("navHome"), key: "home", icon: Home, isActive: pathname === "/" },
     { href: "/#brands", label: t("navBrands"), key: "brands", icon: Grid2X2, isActive: pathname.startsWith("/brands") },
@@ -257,35 +293,7 @@ export function PublicHeader() {
             {isSearchFocused && query.trim() ? (
               <div role="listbox" aria-label="Suggested products" className="absolute inset-x-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[var(--shadow-lg)]">
                 <p className="border-b border-[var(--border-default)] px-4 py-2 text-xs font-semibold text-[var(--text-secondary)]">{t("suggestionsHeading")}</p>
-                {suggestions.length ? suggestions.map((item, idx) => {
-                  const cover = item.item_images[0];
-                  const isSelected = activeSuggestionIndex === idx;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      onMouseEnter={() => setActiveSuggestionIndex(idx)}
-                      onMouseDown={() => openSuggestion(item)}
-                      className={cn(
-                        "flex w-full items-center gap-3 px-3 py-2 text-left transition",
-                        isSelected
-                          ? "bg-[var(--color-primary-50)] text-[var(--brand-primary)]"
-                          : "hover:bg-[var(--color-primary-50)]/60"
-                      )}
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[var(--color-warning-100)]">
-                        {cover ? <Image src={publicAssetUrl(cover.image_path)} alt="" width={40} height={40} className="h-full w-full object-cover" /> : <Search className="h-4 w-4 text-[var(--text-muted)]" />}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">{item.title}</span>
-                        <span className="block text-xs text-[var(--text-secondary)]">{item.type === "service" ? t("typeService") : t("typeProduct")}</span>
-                      </span>
-                      <span className="shrink-0 text-sm font-bold text-[var(--brand-primary)]">৳{new Intl.NumberFormat("bn-BD").format(item.price)}</span>
-                    </button>
-                  );
-                }) : <p className="px-4 py-5 text-sm text-[var(--text-secondary)]">{t("suggestionsEmpty")}</p>}
+                {renderSuggestionRows()}
               </div>
             ) : null}
           </div>
@@ -429,6 +437,12 @@ export function PublicHeader() {
               <Search className="h-4 w-4" />
             </Button>
           </form>
+          {query.trim() ? (
+            <div role="listbox" aria-label="Suggested products" className="mb-3 overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)]">
+              <p className="border-b border-[var(--border-default)] px-4 py-2 text-xs font-semibold text-[var(--text-secondary)]">{t("suggestionsHeading")}</p>
+              {renderSuggestionRows()}
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-1.5">
             {navLinks.map((link) => (
               <Link
