@@ -86,6 +86,6 @@ export const SITE_CONFIG = {
     { label: "WhatsApp", href: "https://wa.me/8801335189426" },
     { label: "Email", href: "mailto:orveenbazzar@gmail.com" },
     { label: "Website", href: "http://www.orveenbazzar.com" },
-    { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61594505662829" },
+    { label: "Facebook", href: "https://www.facebook.com/people/Orveen-Bazaar/61594505662829/" },
   ],
 } as const;

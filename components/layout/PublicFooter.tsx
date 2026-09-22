@@ -19,7 +19,7 @@ export function PublicFooter() {
 
   return (
     <footer className="bg-[var(--color-neutral-900)] text-white/80">
-      <Container className="grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+      <Container className="grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <Image
             src={PRIMARY_BRAND_LOGO_SRC}
@@ -90,6 +90,27 @@ export function PublicFooter() {
               <button type="button" onClick={() => trigger("Contact page")} className="hover:text-white">
                 {t("contactUs")}
               </button>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold text-white">Company</p>
+          <ul className="mt-3 space-y-2 text-sm">
+            <li>
+              <Link href="/about" className="hover:text-white">About us</Link>
+            </li>
+            <li>
+              <Link href="/careers" className="hover:text-white">Careers</Link>
+            </li>
+            <li>
+              <Link href="/dealership" className="hover:text-white">Dealership</Link>
+            </li>
+            <li>
+              <Link href="/investment-plan" className="hover:text-white">Investment plan</Link>
+            </li>
+            <li>
+              <Link href="/offers" className="hover:text-white">Offers</Link>
             </li>
           </ul>
         </div>

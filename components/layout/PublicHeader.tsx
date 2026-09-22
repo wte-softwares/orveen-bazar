@@ -5,16 +5,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Briefcase,
   ChevronDown,
+  Gift,
   Grid2X2,
+  Handshake,
   Heart,
   Home,
+  Info,
   List,
   Lock,
   LogIn,
   Menu,
   Percent,
   Phone,
+  PiggyBank,
   Search,
   ShieldCheck,
   ShoppingCart,
@@ -229,6 +234,11 @@ export function PublicHeader() {
     { href: "/#brands", label: t("navBrands"), key: "brands", icon: Grid2X2, isActive: pathname.startsWith("/brands") },
     { href: "/catalog", label: t("navCatalog"), key: "catalog", icon: List, isActive: pathname === "/catalog" && !isOfferActive },
     { href: "/catalog?offer=true", label: t("navOffers"), key: "offers", icon: Percent, isActive: pathname === "/catalog" && isOfferActive },
+    { href: "/offers", label: t("navGiftOffer"), key: "gift-offer", icon: Gift, isActive: pathname === "/offers" },
+    { href: "/about", label: t("navAbout"), key: "about", icon: Info, isActive: pathname === "/about" },
+    { href: "/careers", label: t("navCareers"), key: "careers", icon: Briefcase, isActive: pathname === "/careers" },
+    { href: "/dealership", label: t("navDealership"), key: "dealership", icon: Handshake, isActive: pathname === "/dealership" },
+    { href: "/investment-plan", label: t("navInvestment"), key: "investment", icon: PiggyBank, isActive: pathname === "/investment-plan" },
   ];
   // Cart remains intentionally inert in this phase (AGENTS.md), so its
   // display count is zero until a future, explicitly scoped cart feature.
@@ -353,7 +363,7 @@ export function PublicHeader() {
       </header>
 
       <nav aria-label="Primary navigation" className="hidden bg-[var(--bg-surface)] md:block">
-        <Container className="relative flex h-11 items-stretch gap-6 text-sm font-semibold text-[var(--text-primary)]">
+        <Container className="relative flex h-11 items-stretch gap-6 overflow-x-auto text-sm font-semibold text-[var(--text-primary)] scrollbar-none">
           <div className="relative flex items-stretch" onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 150)}>
             <button
               type="button"
