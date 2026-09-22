@@ -248,10 +248,33 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Custom branded email templates — see supabase/templates/*.html. These are
+# the same templates pasted into the hosted project's Auth > Email
+# Templates dashboard for production; kept here too so local Inbucket runs
+# match what real users see. See docs/SETUP.md.
+[auth.email.template.confirmation]
+subject = "Confirm your email — ORVEEN BAZAR.COM"
+content_path = "./supabase/templates/confirm-signup.html"
+
+[auth.email.template.invite]
+subject = "You've been invited to ORVEEN BAZAR.COM"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.magic_link]
+subject = "Your sign-in link — ORVEEN BAZAR.COM"
+content_path = "./supabase/templates/magic-link.html"
+
+[auth.email.template.email_change]
+subject = "Confirm your new email address — ORVEEN BAZAR.COM"
+content_path = "./supabase/templates/change-email.html"
+
+[auth.email.template.recovery]
+subject = "Reset your password — ORVEEN BAZAR.COM"
+content_path = "./supabase/templates/reset-password.html"
+
+[auth.email.template.reauthentication]
+subject = "Your verification code — ORVEEN BAZAR.COM"
+content_path = "./supabase/templates/reauthentication.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
