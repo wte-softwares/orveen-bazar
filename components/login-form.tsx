@@ -15,11 +15,13 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { createClient } from "@/lib/supabase/client";
 import { PRIMARY_BRAND_LOGO_SRC } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
 import { GoogleIcon, FacebookIcon } from "@/components/common/BrandIcons";
 import { AuthFeedbackPanel } from "@/components/auth/AuthFeedbackPanel";
+import { useComingSoon } from "@/components/common/ComingSoon";
 import type { TestimonialRow } from "@/lib/testimonials";
 
 /**
@@ -37,6 +39,7 @@ export function LoginForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("auth");
+  const { trigger: triggerComingSoon } = useComingSoon();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -79,12 +82,13 @@ export function LoginForm({
     }
   }
 
-  async function handleOAuth(provider: "google" | "facebook") {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}` },
-    });
+  // Google/Facebook sign-in is temporarily disabled — see AGENTS.md-style
+  // scope note in components/common/ComingSoon.tsx. Kept as a real,
+  // non-`disabled` button so it stays keyboard/hover accessible for the
+  // tooltip and the shared "coming soon" dialog, instead of blocking
+  // pointer events the way a native `disabled` attribute would.
+  function handleOAuth(provider: "google" | "facebook") {
+    triggerComingSoon(provider === "google" ? "Google sign-in" : "Facebook sign-in");
   }
 
   async function handleMagicLink(event: FormEvent) {
@@ -172,14 +176,40 @@ export function LoginForm({
               </FieldDescription>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">{t("orContinueWith")}</FieldSeparator>
               <Field className="grid grid-cols-2 gap-4">
-                <Button variant="outline" type="button" onClick={() => handleOAuth("google")}>
-                  <GoogleIcon className="size-4" />
-                  {t("continueWithGoogle")}
-                </Button>
-                <Button variant="outline" type="button" onClick={() => handleOAuth("facebook")}>
-                  <FacebookIcon className="size-4" />
-                  {t("continueWithFacebook")}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        type="button"
+                        aria-label={`${t("continueWithGoogle")} (coming soon)`}
+                        className="cursor-not-allowed opacity-60"
+                        onClick={() => handleOAuth("google")}
+                      />
+                    }
+                  >
+                    <GoogleIcon className="size-4" />
+                    {t("continueWithGoogle")}
+                  </TooltipTrigger>
+                  <TooltipContent>{t("oauthComingSoon")}</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        type="button"
+                        aria-label={`${t("continueWithFacebook")} (coming soon)`}
+                        className="cursor-not-allowed opacity-60"
+                        onClick={() => handleOAuth("facebook")}
+                      />
+                    }
+                  >
+                    <FacebookIcon className="size-4" />
+                    {t("continueWithFacebook")}
+                  </TooltipTrigger>
+                  <TooltipContent>{t("oauthComingSoon")}</TooltipContent>
+                </Tooltip>
               </Field>
               <FieldDescription className="text-center">
                 {t("noAccount")} <Link href="/register">{t("signUpLink")}</Link>

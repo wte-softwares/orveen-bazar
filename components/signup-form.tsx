@@ -15,11 +15,12 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { createClient } from "@/lib/supabase/client";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PRIMARY_BRAND_LOGO_SRC } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
 import { GoogleIcon, FacebookIcon } from "@/components/common/BrandIcons";
 import { AuthFeedbackPanel } from "@/components/auth/AuthFeedbackPanel";
+import { useComingSoon } from "@/components/common/ComingSoon";
 import type { TestimonialRow } from "@/lib/testimonials";
 
 /** Ported from shadcn's signup-04 block — see components/login-form.tsx for the general approach. */
@@ -30,6 +31,7 @@ export function SignupForm({
 }: React.ComponentProps<"div"> & { testimonials: TestimonialRow[] }) {
   const router = useRouter();
   const t = useTranslations("auth");
+  const { trigger: triggerComingSoon } = useComingSoon();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -73,12 +75,10 @@ export function SignupForm({
     }
   }
 
-  async function handleOAuth(provider: "google" | "facebook") {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent("/account")}` },
-    });
+  // Google/Facebook sign-in is temporarily disabled — see the matching note
+  // in components/login-form.tsx.
+  function handleOAuth(provider: "google" | "facebook") {
+    triggerComingSoon(provider === "google" ? "Google sign-in" : "Facebook sign-in");
   }
 
   return (
@@ -134,14 +134,40 @@ export function SignupForm({
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">{t("orContinueWith")}</FieldSeparator>
               <Field className="grid grid-cols-2 gap-4">
-                <Button variant="outline" type="button" onClick={() => handleOAuth("google")}>
-                  <GoogleIcon className="size-4" />
-                  {t("continueWithGoogle")}
-                </Button>
-                <Button variant="outline" type="button" onClick={() => handleOAuth("facebook")}>
-                  <FacebookIcon className="size-4" />
-                  {t("continueWithFacebook")}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        type="button"
+                        aria-label={`${t("continueWithGoogle")} (coming soon)`}
+                        className="cursor-not-allowed opacity-60"
+                        onClick={() => handleOAuth("google")}
+                      />
+                    }
+                  >
+                    <GoogleIcon className="size-4" />
+                    {t("continueWithGoogle")}
+                  </TooltipTrigger>
+                  <TooltipContent>{t("oauthComingSoon")}</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        type="button"
+                        aria-label={`${t("continueWithFacebook")} (coming soon)`}
+                        className="cursor-not-allowed opacity-60"
+                        onClick={() => handleOAuth("facebook")}
+                      />
+                    }
+                  >
+                    <FacebookIcon className="size-4" />
+                    {t("continueWithFacebook")}
+                  </TooltipTrigger>
+                  <TooltipContent>{t("oauthComingSoon")}</TooltipContent>
+                </Tooltip>
               </Field>
               <FieldDescription className="text-center">
                 {t("alreadyHaveAccount")} <Link href="/login">{t("signInLink")}</Link>
