@@ -125,6 +125,16 @@ export const TRANSLATIONS = {
     linkCopied: { bn: "লিংক কপি হয়েছে!", en: "Link copied!" },
     discountBadge: { bn: "ছাড়", en: "OFF" },
     inquireService: { bn: "যোগাযোগ করুন", en: "Contact / Inquire" },
+    fallbackDescriptionProduct: {
+      bn: "এই পণ্যটি আমাদের ব্র্যান্ডের গুণগত মান ও গ্রাহক আস্থা বজায় রেখে বাজারজাত করা হয়েছে। বিস্তারিত জানতে বা অর্ডার সংক্রান্ত সহায়তার জন্য যোগাযোগ করুন।",
+      en: "This product is brought to you with the same quality and trust our brand stands for. Reach out for more details or ordering assistance.",
+    },
+    fallbackDescriptionService: {
+      bn: "এই সার্ভিসটি আমাদের ব্র্যান্ডের গুণগত মান ও গ্রাহক আস্থা বজায় রেখে প্রদান করা হয়। বিস্তারিত জানতে যোগাযোগ করুন।",
+      en: "This service is delivered with the same quality and trust our brand stands for. Reach out for more details.",
+    },
+    relatedProducts: { bn: "সম্পর্কিত পণ্য", en: "Related Products" },
+    relatedServices: { bn: "সম্পর্কিত সার্ভিস", en: "Related Services" },
   },
   hero: {
     previousBanner: { bn: "আগের ব্যানার", en: "Previous banner" },

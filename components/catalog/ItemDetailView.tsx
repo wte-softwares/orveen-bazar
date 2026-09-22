@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { publicAssetUrl } from "@/lib/storage/public-url";
 import { useComingSoon } from "@/components/common/ComingSoon";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
+import { ProductImagePlaceholder } from "@/components/catalog/ProductImagePlaceholder";
 import type { BrandConfig } from "@/lib/site-config";
 
 export interface DetailCatalogItem {
@@ -152,9 +153,7 @@ export function ItemDetailView({ item, brand }: ItemDetailViewProps) {
                 </button>
               </>
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-                {tCard("noImage")}
-              </div>
+              <ProductImagePlaceholder />
             )}
 
             {/* Type badge */}
@@ -319,12 +318,17 @@ export function ItemDetailView({ item, brand }: ItemDetailViewProps) {
               </div>
             )}
 
-            {/* Short Description preview */}
-            {item.description && (
-              <div className="pt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
-                <p>{item.description}</p>
-              </div>
-            )}
+            {/* Short Description preview — falls back to generic brand copy
+                so an item with no description text never leaves this area
+                empty. */}
+            <div className="pt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
+              <p>
+                {item.description ||
+                  (item.type === "service"
+                    ? tDetails("fallbackDescriptionService")
+                    : tDetails("fallbackDescriptionProduct"))}
+              </p>
+            </div>
           </div>
 
           {/* Actions & Scope Boundary buttons */}

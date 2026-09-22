@@ -105,6 +105,58 @@ export async function findPublishedItemBySlug(
   return data;
 }
 
+/**
+ * Same-category, same-brand items for the "related products" strip on the
+ * item detail page. Falls back to other published items from the same
+ * organization when the category has nothing else to show, so the section
+ * only disappears when the whole brand has no other published items.
+ */
+export async function listRelatedCatalogItems(
+  supabase: SupabaseClient<Database>,
+  params: { organizationSlug: string; categorySlug: string; excludeItemId: string; limit?: number },
+) {
+  const limit = params.limit ?? 8;
+
+  const { data: sameCategory, error: sameCategoryError } = await supabase
+    .from("catalog_items")
+    .select(ITEM_LIST_COLUMNS)
+    .eq("status", "published")
+    .eq("organization.is_active", true)
+    .eq("organization.slug", params.organizationSlug)
+    .eq("category.slug", params.categorySlug)
+    .neq("id", params.excludeItemId)
+    .order("created_at", { ascending: false })
+    .order("sort_order", { referencedTable: "item_images" })
+    .limit(limit);
+
+  if (sameCategoryError) throw sameCategoryError;
+  if (sameCategory && sameCategory.length >= limit) return sameCategory;
+
+  const { data: sameBrand, error: sameBrandError } = await supabase
+    .from("catalog_items")
+    .select(ITEM_LIST_COLUMNS)
+    .eq("status", "published")
+    .eq("organization.is_active", true)
+    .eq("organization.slug", params.organizationSlug)
+    .neq("id", params.excludeItemId)
+    .order("created_at", { ascending: false })
+    .order("sort_order", { referencedTable: "item_images" })
+    .limit(limit);
+
+  if (sameBrandError) throw sameBrandError;
+
+  const seen = new Set((sameCategory ?? []).map((item) => item.id));
+  const merged = [...(sameCategory ?? [])];
+  for (const item of sameBrand ?? []) {
+    if (merged.length >= limit) break;
+    if (!seen.has(item.id)) {
+      merged.push(item);
+      seen.add(item.id);
+    }
+  }
+  return merged;
+}
+
 export interface AdminCatalogItemSummary {
   id: string;
   slug: string;

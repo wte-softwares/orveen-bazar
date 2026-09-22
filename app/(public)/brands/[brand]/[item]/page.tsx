@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { findPublishedItemBySlug } from "@/lib/queries/catalog";
+import { findPublishedItemBySlug, listRelatedCatalogItems } from "@/lib/queries/catalog";
 import { getBrandConfig } from "@/lib/site-config";
 import { Container } from "@/components/layout/Container";
 import { ItemDetailView, type DetailCatalogItem } from "@/components/catalog/ItemDetailView";
+import { RelatedProducts } from "@/components/catalog/RelatedProducts";
 import { publicAssetUrl } from "@/lib/storage/public-url";
 
 export async function generateMetadata({
@@ -66,12 +67,19 @@ export default async function ItemDetailsPage({
     notFound();
   }
 
+  const relatedItems = await listRelatedCatalogItems(supabase, {
+    organizationSlug: brandSlug,
+    categorySlug: catalogItem.category.slug,
+    excludeItemId: catalogItem.id,
+  });
+
   return (
     <Container className="py-8">
       <ItemDetailView
         item={catalogItem as unknown as DetailCatalogItem}
         brand={brand}
       />
+      <RelatedProducts items={relatedItems} itemType={catalogItem.type as "product" | "service"} />
     </Container>
   );
 }

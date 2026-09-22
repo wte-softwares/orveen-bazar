@@ -26,7 +26,7 @@ export default async function HomePage() {
       const { items } = await listPublishedCatalogItems(supabase, {
         organizationSlug: org.slug,
         from: 0,
-        to: 5,
+        to: 7,
       });
       return { org, items };
     }),

@@ -10,6 +10,7 @@ import { publicAssetUrl } from "@/lib/storage/public-url";
 import { useComingSoon } from "@/components/common/ComingSoon";
 import { getBrandConfig } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
+import { ProductImagePlaceholder } from "@/components/catalog/ProductImagePlaceholder";
 
 export interface ProductCardItem {
   id: string;
@@ -96,9 +97,7 @@ export function ProductCard({ item }: { item: ProductCardItem }) {
             className="aspect-[1/1.04] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex aspect-[1/1.04] w-full items-center justify-center text-xs text-[var(--text-muted)]">
-            {t("noImage")}
-          </div>
+          <ProductImagePlaceholder className="aspect-[1/1.04]" />
         )}
         </Link>
       </div>
