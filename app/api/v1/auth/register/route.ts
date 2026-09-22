@@ -7,6 +7,7 @@ export const POST = withApiHandler(async (request: Request) => {
   const body = registerSchema.parse(await request.json());
   const supabase = await createClient();
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:3000";
   const { data, error } = await supabase.auth.signUp({
     email: body.email,
     password: body.password,
@@ -17,7 +18,7 @@ export const POST = withApiHandler(async (request: Request) => {
       // server-side before the visitor is actually signed in (see that
       // route); landing on /login unauthenticated would otherwise make them
       // enter their password a second time right after confirming.
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirect=${encodeURIComponent("/login")}`,
+      emailRedirectTo: `${siteUrl}/auth/callback?redirect=${encodeURIComponent("/login")}`,
     },
   });
 

@@ -23,7 +23,9 @@ export const POST = withApiHandler(
 
     const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(data.user.email, {
       data: { display_name: displayName },
-      redirectTo: `${siteUrl}/reset-password`,
+      // See app/api/v1/admin/users/route.ts — must route through
+      // /auth/callback so the PKCE code gets exchanged server-side.
+      redirectTo: `${siteUrl}/auth/callback?redirect=${encodeURIComponent("/reset-password")}`,
     });
 
     if (inviteError) throw inviteError;

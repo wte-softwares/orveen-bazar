@@ -70,7 +70,11 @@ export const POST = withApiHandler(async (request: Request) => {
     body.email,
     {
       data: { display_name: displayName },
-      redirectTo: `${siteUrl}/reset-password`,
+      // Through /auth/callback, not straight to /reset-password — the
+      // invite link carries a PKCE `?code=` that must be exchanged for a
+      // session server-side first, same reason as register/forgot-password
+      // (see app/auth/callback/route.ts and components/reset-password-form.tsx).
+      redirectTo: `${siteUrl}/auth/callback?redirect=${encodeURIComponent("/reset-password")}`,
     },
   );
   if (inviteError) throw inviteError;

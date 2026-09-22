@@ -17,8 +17,9 @@ export const POST = withApiHandler(async (request: Request) => {
   // for a session server-side (supabase.auth.exchangeCodeForSession) before
   // /reset-password's own POST /api/v1/auth/reset-password can see a signed-
   // in user — see app/auth/callback/route.ts.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:3000";
   await supabase.auth.resetPasswordForEmail(body.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?redirect=${encodeURIComponent("/reset-password")}`,
+    redirectTo: `${siteUrl}/auth/callback?redirect=${encodeURIComponent("/reset-password")}`,
   });
 
   return ok({ message: "If that email is registered, a reset link has been sent." });
