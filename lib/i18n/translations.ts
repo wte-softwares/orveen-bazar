@@ -184,6 +184,11 @@ export const TRANSLATIONS = {
     genericError: { bn: "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।", en: "Something went wrong. Please try again." },
     backToHome: { bn: "হোমে ফিরে যান", en: "Back to home" },
     oauthComingSoon: { bn: "শীঘ্রই আসছে", en: "Coming soon" },
+    oauthComingSoonBody: {
+      bn: "গুগল ও ফেসবুক দিয়ে সাইন-ইন শীঘ্রই চালু হবে। আপাতত ইমেইল/পাসওয়ার্ড বা ম্যাজিক লিংক ব্যবহার করুন।",
+      en: "Google and Facebook sign-in are coming soon. For now, please use email/password or a magic link.",
+    },
+    oauthComingSoonClose: { bn: "ঠিক আছে", en: "Got it" },
     useMagicLink: { bn: "ম্যাজিক লিংক দিয়ে সাইন ইন করুন", en: "Sign in with a magic link instead" },
     usePasswordInstead: { bn: "পাসওয়ার্ড দিয়ে সাইন ইন করুন", en: "Sign in with a password instead" },
     magicLinkSubtitle: {

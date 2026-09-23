@@ -16,11 +16,18 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PRIMARY_BRAND_LOGO_SRC } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
 import { GoogleIcon, FacebookIcon } from "@/components/common/BrandIcons";
 import { AuthFeedbackPanel } from "@/components/auth/AuthFeedbackPanel";
-import { useComingSoon } from "@/components/common/ComingSoon";
 import type { TestimonialRow } from "@/lib/testimonials";
 
 /** Ported from shadcn's signup-04 block — see components/login-form.tsx for the general approach. */
@@ -31,7 +38,7 @@ export function SignupForm({
 }: React.ComponentProps<"div"> & { testimonials: TestimonialRow[] }) {
   const router = useRouter();
   const t = useTranslations("auth");
-  const { trigger: triggerComingSoon } = useComingSoon();
+  const [oauthComingSoonOpen, setOauthComingSoonOpen] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,9 +83,11 @@ export function SignupForm({
   }
 
   // Google/Facebook sign-in is temporarily disabled — see the matching note
-  // in components/login-form.tsx.
-  function handleOAuth(provider: "google" | "facebook") {
-    triggerComingSoon(provider === "google" ? "Google sign-in" : "Facebook sign-in");
+  // in components/login-form.tsx (this page also lives outside the
+  // `(public)` route group, so it uses a local dialog rather than the
+  // shared ComingSoonProvider context).
+  function handleOAuth() {
+    setOauthComingSoonOpen(true);
   }
 
   return (
@@ -142,7 +151,7 @@ export function SignupForm({
                         type="button"
                         aria-label={`${t("continueWithGoogle")} (coming soon)`}
                         className="cursor-not-allowed opacity-60"
-                        onClick={() => handleOAuth("google")}
+                        onClick={() => handleOAuth()}
                       >
                         <GoogleIcon className="size-4" />
                         {t("continueWithGoogle")}
@@ -159,7 +168,7 @@ export function SignupForm({
                         type="button"
                         aria-label={`${t("continueWithFacebook")} (coming soon)`}
                         className="cursor-not-allowed opacity-60"
-                        onClick={() => handleOAuth("facebook")}
+                        onClick={() => handleOAuth()}
                       >
                         <FacebookIcon className="size-4" />
                         {t("continueWithFacebook")}
@@ -176,6 +185,18 @@ export function SignupForm({
           </form>
         </CardContent>
       </Card>
+
+      <Dialog open={oauthComingSoonOpen} onOpenChange={setOauthComingSoonOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("oauthComingSoon")}</DialogTitle>
+            <DialogDescription>{t("oauthComingSoonBody")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setOauthComingSoonOpen(false)}>{t("oauthComingSoonClose")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
