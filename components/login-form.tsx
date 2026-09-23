@@ -185,12 +185,12 @@ export function LoginForm({
                         aria-label={`${t("continueWithGoogle")} (coming soon)`}
                         className="cursor-not-allowed opacity-60"
                         onClick={() => handleOAuth("google")}
-                      />
+                      >
+                        <GoogleIcon className="size-4" />
+                        {t("continueWithGoogle")}
+                      </Button>
                     }
-                  >
-                    <GoogleIcon className="size-4" />
-                    {t("continueWithGoogle")}
-                  </TooltipTrigger>
+                  />
                   <TooltipContent>{t("oauthComingSoon")}</TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -202,12 +202,12 @@ export function LoginForm({
                         aria-label={`${t("continueWithFacebook")} (coming soon)`}
                         className="cursor-not-allowed opacity-60"
                         onClick={() => handleOAuth("facebook")}
-                      />
+                      >
+                        <FacebookIcon className="size-4" />
+                        {t("continueWithFacebook")}
+                      </Button>
                     }
-                  >
-                    <FacebookIcon className="size-4" />
-                    {t("continueWithFacebook")}
-                  </TooltipTrigger>
+                  />
                   <TooltipContent>{t("oauthComingSoon")}</TooltipContent>
                 </Tooltip>
               </Field>
