@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { PRIMARY_BRAND_LOGO_SRC } from "@/lib/site-config";
 import { useTranslations } from "@/lib/i18n/LocaleProvider";
 import { AuthFeedbackPanel } from "@/components/auth/AuthFeedbackPanel";
+import { formatApiError } from "@/lib/api/format-error";
 import type { TestimonialRow } from "@/lib/testimonials";
 
 /**
@@ -52,7 +53,7 @@ export function ResetPasswordForm({
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error?.message ?? t("genericError"));
+        setError(formatApiError(body, t("genericError")));
         return;
       }
       setDone(true);

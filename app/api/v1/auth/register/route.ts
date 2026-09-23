@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { registerSchema } from "@/lib/validation/auth.schema";
 import { ok } from "@/lib/api/response";
-import { ApiError, withApiHandler } from "@/lib/api/errors";
+import { ApiError, ConflictError, withApiHandler } from "@/lib/api/errors";
 
 export const POST = withApiHandler(async (request: Request) => {
   const body = registerSchema.parse(await request.json());
@@ -22,15 +22,22 @@ export const POST = withApiHandler(async (request: Request) => {
     },
   });
 
-  // Note: with auth.email.enable_confirmations = true (see
-  // supabase/config.toml), Supabase automatically returns an obfuscated
-  // success response instead of an error when the email already belongs to
-  // a confirmed account — this is Supabase's own built-in defense against
-  // account-enumeration via the register form, not something this route
-  // needs to reimplement. Any `error` reaching here is a genuine failure
-  // (weak password, rate limit, etc.) safe to surface.
+  // Any `error` reaching here is a genuine failure (weak password, rate
+  // limit, etc.) safe to surface.
   if (error) {
     throw new ApiError(400, "sign_up_failed", error.message);
+  }
+
+  // With auth.email.enable_confirmations = true (see supabase/config.toml),
+  // Supabase doesn't return an `error` when the email already belongs to a
+  // confirmed account — it returns a 200 with a *fake* user object instead,
+  // as its own built-in defense against account-enumeration via this form.
+  // The one reliable signal that it's the fake object: `identities` is an
+  // empty array (a brand-new signup always has exactly one identity). The
+  // client explicitly wants a clear "account already exists" message here
+  // over that anti-enumeration protection, so this route surfaces it.
+  if (data.user && data.user.identities?.length === 0) {
+    throw new ConflictError("An account already exists with this email address. Try signing in instead.");
   }
 
   return ok(
